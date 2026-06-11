@@ -1,0 +1,40 @@
+[package]
+name = "kainetic-telemetry"
+description = "OpenTelemetry tracing, Prometheus metrics, and cost tracking for Kainetic."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[features]
+default = []
+otlp = [
+    "dep:opentelemetry",
+    "dep:opentelemetry_sdk",
+    "dep:opentelemetry-otlp",
+    "dep:opentelemetry-semantic-conventions",
+    "dep:tracing-opentelemetry",
+]
+
+[dependencies]
+kainetic-core = { workspace = true }
+kainetic-schema = { workspace = true }
+serde = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+tokio = { workspace = true }
+dashmap = { workspace = true }
+prometheus = { workspace = true }
+axum = { workspace = true }
+serde_json = { workspace = true }
+
+# OTel — only pulled in with feature = "otlp"
+opentelemetry = { workspace = true, optional = true }
+opentelemetry_sdk = { workspace = true, optional = true }
+opentelemetry-otlp = { workspace = true, optional = true }
+opentelemetry-semantic-conventions = { workspace = true, optional = true }
+tracing-opentelemetry = { workspace = true, optional = true }
+
+[dev-dependencies]
+reqwest = { workspace = true }

@@ -1,0 +1,37 @@
+[package]
+name = "kainetic-memory"
+description = "Memory backends (in-memory, SQLite, Redis, vector search) for Kainetic agents."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[features]
+# Enable persistent SQLite-backed episodic memory.
+sqlite = ["dep:rusqlite", "dep:r2d2", "dep:r2d2_sqlite"]
+# Enable Redis-backed distributed episodic memory.
+redis = ["dep:redis"]
+# Enable in-process vector search via usearch.
+usearch = ["dep:usearch"]
+
+[dependencies]
+kainetic-schema = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+tokio = { workspace = true }
+futures = { workspace = true }
+async-trait = { workspace = true }
+dashmap = { workspace = true }
+chrono = { workspace = true }
+
+# Optional — activated by feature flags above
+rusqlite = { workspace = true, optional = true }
+r2d2 = { workspace = true, optional = true }
+r2d2_sqlite = { workspace = true, optional = true }
+redis = { workspace = true, optional = true }
+usearch = { workspace = true, optional = true }
+
+[dev-dependencies]
+tokio = { workspace = true }

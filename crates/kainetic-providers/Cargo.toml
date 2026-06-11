@@ -1,0 +1,30 @@
+[package]
+name = "kainetic-providers"
+description = "Model provider abstraction and implementations (Anthropic, OpenAI) for Kainetic."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[features]
+# Enable integration tests that make real API calls.
+# Requires ANTHROPIC_API_KEY / OPENAI_API_KEY in the environment.
+integration = []
+
+[dependencies]
+kainetic-schema = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+tokio = { workspace = true }
+futures = { workspace = true }
+reqwest = { workspace = true }
+async-trait = { workspace = true }
+async-stream = { workspace = true }
+eventsource-stream = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true }
+wiremock = "0.6"
+anyhow = { workspace = true }

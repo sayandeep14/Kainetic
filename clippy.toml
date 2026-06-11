@@ -1,0 +1,23 @@
+# Clippy workspace-wide configuration.
+# Crate-level #![deny(...)] attributes enforce the actual lint levels;
+# this file configures lint behaviour that cannot be set via attributes.
+
+msrv = "1.75.0"
+
+# Allow slightly longer lines in doc comments where splitting hurts readability.
+doc-valid-idents = [
+    "OpenAI",
+    "AnthropicProvider",
+    "OpenAiProvider",
+    "GeminiProvider",
+    "OllamaProvider",
+    "JsonSchema",
+    "DashMap",
+    "FuturesUnordered",
+    "ReActLoop",
+    "CancellationToken",
+    "RunId",
+    "SessionId",
+    "AgentId",
+    "ToolId",
+]

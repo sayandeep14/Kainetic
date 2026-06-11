@@ -1,0 +1,28 @@
+[package]
+name = "kainetic-orchestra"
+description = "Multi-agent orchestration: Pipeline, Handoff, Supervisor, and StateMachineAgent for Kainetic."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+kainetic-schema = { workspace = true }
+kainetic-core = { workspace = true }
+kainetic-memory = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+tokio = { workspace = true }
+futures = { workspace = true }
+async-trait = { workspace = true }
+dashmap = { workspace = true }
+petgraph = { workspace = true }
+rand = { workspace = true }
+indexmap = { workspace = true }
+
+[dev-dependencies]
+kainetic-providers = { workspace = true }
+kainetic-tools = { workspace = true }
+tokio-util = { workspace = true }

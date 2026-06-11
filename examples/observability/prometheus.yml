@@ -1,0 +1,17 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  # Scrape the running Kainetic agent's /metrics endpoint.
+  # Update the target if your agent uses a different port.
+  - job_name: kainetic
+    static_configs:
+      - targets: ["host.docker.internal:9091"]
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance

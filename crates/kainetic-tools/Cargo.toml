@@ -1,0 +1,31 @@
+[package]
+name = "kainetic-tools"
+description = "Tool trait, registry, input validation, and built-in tools for Kainetic."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[features]
+# Enable integration tests that make real API calls (e.g., Brave Search).
+integration = []
+
+[dependencies]
+kainetic-schema = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+tokio = { workspace = true }
+tokio-util = { workspace = true }
+futures = { workspace = true }
+reqwest = { workspace = true }
+dashmap = { workspace = true }
+jsonschema = { workspace = true }
+chrono = { workspace = true }
+schemars = { workspace = true }
+
+[dev-dependencies]
+kainetic-macros = { workspace = true }
+tokio = { workspace = true }
+wiremock = { workspace = true }

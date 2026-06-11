@@ -1,0 +1,74 @@
+version: "3.9"
+
+# Local observability stack for Kainetic development.
+#
+# Usage:
+#   docker compose up -d
+#
+# Then run your agent with OTLP enabled:
+#   RUST_LOG=info cargo run --example simple-agent
+#   (add kainetic-telemetry with otlp feature and point to http://localhost:4317)
+#
+# Endpoints:
+#   Grafana:    http://localhost:3000  (admin / admin)
+#   Tempo:      http://localhost:3200  (trace query API)
+#   Prometheus: http://localhost:9090
+#   OTLP gRPC:  localhost:4317
+#   OTLP HTTP:  localhost:4318
+#   Kainetic /metrics (your agent): http://localhost:9091/metrics
+
+services:
+  # ── Tempo (trace storage) ──────────────────────────────────────────────────
+  tempo:
+    image: grafana/tempo:latest
+    command: ["-config.file=/etc/tempo.yaml"]
+    volumes:
+      - ./tempo.yaml:/etc/tempo.yaml
+      - tempo-data:/var/tempo
+    ports:
+      - "3200:3200"   # Tempo HTTP API
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
+    networks:
+      - observability
+
+  # ── Prometheus (metrics storage) ───────────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:latest
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --web.enable-lifecycle
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - observability
+
+  # ── Grafana (dashboards) ───────────────────────────────────────────────────
+  grafana:
+    image: grafana/grafana:latest
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - grafana-data:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - tempo
+      - prometheus
+    networks:
+      - observability
+
+networks:
+  observability:
+    driver: bridge
+
+volumes:
+  tempo-data:
+  prometheus-data:
+  grafana-data:

@@ -1,0 +1,27 @@
+[package]
+name = "kainetic-core"
+description = "Agent trait, ReActLoop execution engine, and KaineticRuntime for Kainetic."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[features]
+integration = []
+
+[dependencies]
+kainetic-schema = { workspace = true }
+kainetic-providers = { workspace = true }
+kainetic-tools = { workspace = true }
+kainetic-memory = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+tokio = { workspace = true }
+tokio-util = { workspace = true }
+futures = { workspace = true }
+
+[dev-dependencies]
+async-trait = { workspace = true }
+kainetic-macros = { workspace = true }
+tokio = { workspace = true }

@@ -1,0 +1,18 @@
+[package]
+name = "simple-agent"
+description = "Example: a minimal tool-calling agent built with Kainetic."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "simple-agent"
+path = "src/main.rs"
+
+[dependencies]
+kainetic-core = { workspace = true }
+kainetic-providers = { workspace = true }
+kainetic-tools = { workspace = true }
+kainetic-macros = { workspace = true }
+tokio = { workspace = true }
+tracing-subscriber = { workspace = true }

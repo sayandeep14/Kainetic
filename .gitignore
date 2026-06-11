@@ -1,0 +1,51 @@
+# Rust build artifacts
+/target/
+**/*.rs.bk
+
+# Cargo lock (keep for binaries, omit for libraries — this workspace has both)
+# Cargo.lock is intentionally checked in for reproducible builds
+
+# Environment / secrets
+.env
+.env.local
+*.env
+
+# IDE / editor
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Flamegraph / profiling output
+perf.data
+perf.data.old
+flamegraph.svg
+*.profraw
+*.profdata
+
+# Benchmark baselines (Criterion stores HTML reports in target/)
+criterion/
+
+# Python bindings build artifacts
+bindings/python/__pycache__/
+bindings/python/*.egg-info/
+bindings/python/dist/
+bindings/python/.venv/
+
+# TypeScript bindings build artifacts
+bindings/typescript/node_modules/
+bindings/typescript/dist/
+bindings/typescript/*.node
+
+# Docker / observability scratch data
+examples/observability/data/
+
+# Generated docs
+book/
+
+# Claude related
+.claude/
+CLAUDE.md
+PLAN.md
+SPEC.md

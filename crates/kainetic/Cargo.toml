@@ -1,0 +1,25 @@
+[package]
+name = "kainetic"
+description = "The production-grade Rust runtime for agentic AI — facade crate re-exporting the full Kainetic API."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+kainetic-schema = { workspace = true }
+kainetic-providers = { workspace = true }
+kainetic-tools = { workspace = true }
+kainetic-core = { workspace = true }
+kainetic-memory = { workspace = true }
+kainetic-telemetry = { workspace = true }
+kainetic-orchestra = { workspace = true }
+
+[dev-dependencies]
+kainetic-macros = { workspace = true }
+tokio = { workspace = true }
+tracing-subscriber = { workspace = true }
+
+[[example]]
+name = "simple-agent"
+path = "examples/simple-agent.rs"

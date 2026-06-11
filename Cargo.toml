@@ -1,0 +1,94 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/kainetic",
+    "crates/kainetic-schema",
+    "crates/kainetic-providers",
+    "crates/kainetic-tools",
+    "crates/kainetic-core",
+    "crates/kainetic-memory",
+    "crates/kainetic-telemetry",
+    "crates/kainetic-macros",
+    "crates/kainetic-orchestra",
+    "crates/kainetic-cli",
+    "examples/simple-agent",
+    "examples/multi-agent-pipeline",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+repository = "https://github.com/kainetic/kainetic"
+authors = ["Kainetic Contributors"]
+
+[workspace.dependencies]
+# Async runtime
+tokio = { version = "1", features = ["full"] }
+tokio-util = { version = "0.7" }
+futures = "0.3"
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Schema & identity
+uuid = { version = "1", features = ["v4", "serde"] }
+schemars = { version = "0.8", features = ["uuid1"] }
+
+# HTTP & async utilities
+reqwest = { version = "0.12", default-features = false, features = ["json", "stream", "rustls-tls"] }
+async-trait = "0.1"
+async-stream = "0.3"
+eventsource-stream = "0.2"
+
+# Error handling
+thiserror = "2"
+anyhow = "1"
+
+# Logging & tracing
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+
+dashmap = "5"
+jsonschema = { version = "0.17", default-features = false }
+chrono = { version = "0.4", default-features = false, features = ["std", "clock", "serde"] }
+
+# Memory backends (optional)
+rusqlite = { version = "0.32", features = ["bundled"] }
+r2d2 = "0.8"
+r2d2_sqlite = "0.25"
+redis = { version = "0.27", features = ["tokio-comp"] }
+usearch = "2"
+
+# Internal crates
+kainetic-schema = { path = "crates/kainetic-schema" }
+kainetic-providers = { path = "crates/kainetic-providers" }
+kainetic-tools = { path = "crates/kainetic-tools" }
+kainetic-core = { path = "crates/kainetic-core" }
+kainetic-memory = { path = "crates/kainetic-memory" }
+kainetic-telemetry = { path = "crates/kainetic-telemetry" }
+kainetic-macros = { path = "crates/kainetic-macros" }
+kainetic-orchestra = { path = "crates/kainetic-orchestra" }
+wiremock = "0.6"
+petgraph = "0.6"
+rand = "0.8"
+indexmap = { version = "2", features = ["serde"] }
+
+# CLI
+clap = { version = "4", features = ["derive", "env"] }
+indicatif = "0.17"
+console = "0.15"
+comfy-table = "7"
+toml = "0.8"
+
+# Telemetry
+prometheus = { version = "0.13", default-features = false, features = ["process"] }
+axum = { version = "0.7", default-features = false, features = ["http1", "tokio"] }
+
+# OTel (optional feature in kainetic-telemetry)
+opentelemetry = { version = "0.24", features = ["trace"] }
+opentelemetry_sdk = { version = "0.24", features = ["rt-tokio", "trace"] }
+opentelemetry-otlp = { version = "0.17", default-features = false, features = ["trace", "http-proto", "reqwest-client"] }
+opentelemetry-semantic-conventions = "0.14"
+tracing-opentelemetry = "0.25"
