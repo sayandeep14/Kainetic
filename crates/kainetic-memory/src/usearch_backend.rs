@@ -69,11 +69,14 @@ impl UsearchBackend {
         self.dimensions
     }
 
-    fn alloc_label(&self) -> u64 {
-        let mut guard = self.next_label.lock().unwrap();
+    fn alloc_label(&self) -> Result<u64, MemoryError> {
+        let mut guard = self
+            .next_label
+            .lock()
+            .map_err(|_| MemoryError::Backend("label counter mutex was poisoned".into()))?;
         let label = *guard;
         *guard += 1;
-        label
+        Ok(label)
     }
 }
 
@@ -94,7 +97,7 @@ impl MemoryBackend for UsearchBackend {
         let label = if let Some(existing) = self.label_map.get(&key_str) {
             *existing
         } else {
-            let new_label = self.alloc_label();
+            let new_label = self.alloc_label()?;
             self.label_map.insert(key_str.clone(), new_label);
             new_label
         };
@@ -108,7 +111,10 @@ impl MemoryBackend for UsearchBackend {
                     emb.len()
                 )));
             }
-            let index = self.index.lock().unwrap();
+            let index = self
+                .index
+                .lock()
+                .map_err(|_| MemoryError::Backend("usearch index mutex was poisoned".into()))?;
             // Remove existing vector at this label if present, then re-add.
             let _ = index.remove(label); // ignore "not found" error
             index
@@ -137,7 +143,10 @@ impl MemoryBackend for UsearchBackend {
         }
 
         let (keys, distances) = {
-            let index = self.index.lock().unwrap();
+            let index = self
+                .index
+                .lock()
+                .map_err(|_| MemoryError::Backend("usearch index mutex was poisoned".into()))?;
             let results = index
                 .search(emb, query.top_k as usize)
                 .map_err(|e| MemoryError::Backend(e.to_string()))?;
@@ -164,7 +173,10 @@ impl MemoryBackend for UsearchBackend {
     async fn delete(&self, key: &MemoryKey) -> Result<(), MemoryError> {
         let key_str = key.to_string();
         if let Some((_, label)) = self.label_map.remove(&key_str) {
-            let index = self.index.lock().unwrap();
+            let index = self
+                .index
+                .lock()
+                .map_err(|_| MemoryError::Backend("usearch index mutex was poisoned".into()))?;
             let _ = index.remove(label);
             self.store.remove(&label);
         }

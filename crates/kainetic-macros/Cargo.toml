@@ -13,3 +13,14 @@ proc-macro = true
 syn = { version = "2", features = ["full"] }
 quote = "1"
 proc-macro2 = "1"
+
+[dev-dependencies]
+trybuild = { workspace = true }
+kainetic-tools = { workspace = true }
+kainetic-core = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+schemars = { workspace = true }
+tokio = { workspace = true }
+tokio-util = { workspace = true }
+kainetic-schema = { workspace = true }

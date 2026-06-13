@@ -9,6 +9,12 @@ repository.workspace = true
 [features]
 # Enable integration tests that make real API calls (e.g., Brave Search).
 integration = []
+# Enable the ShellTool (runs arbitrary shell commands — trusted environments only).
+shell = []
+# Enable the CodeExecutorTool (runs code in subprocesses).
+code-executor = []
+# Enable the VectorSearchTool backed by a MemoryBackend.
+vector-search = ["dep:kainetic-memory"]
 
 [dependencies]
 kainetic-schema = { workspace = true }
@@ -24,8 +30,18 @@ dashmap = { workspace = true }
 jsonschema = { workspace = true }
 chrono = { workspace = true }
 schemars = { workspace = true }
+rusqlite = { workspace = true }
+scraper = { workspace = true }
+sqlparser = { workspace = true }
+
+kainetic-memory = { workspace = true, optional = true }
 
 [dev-dependencies]
 kainetic-macros = { workspace = true }
 tokio = { workspace = true }
 wiremock = { workspace = true }
+criterion = { workspace = true }
+
+[[bench]]
+name = "tool_dispatch"
+harness = false

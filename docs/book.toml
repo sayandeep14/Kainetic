@@ -1,0 +1,26 @@
+[book]
+title = "Kainetic"
+authors = ["Kainetic Contributors"]
+description = "Production-grade Rust runtime for agentic AI systems"
+language = "en"
+src = "src"
+
+[output.html]
+site-url = "https://docs.kainetic.dev/"
+git-repository-url = "https://github.com/kainetic/kainetic"
+git-repository-icon = "fa-github"
+edit-url-template = "https://github.com/kainetic/kainetic/edit/main/docs/{path}"
+no-section-label = false
+
+[output.html.search]
+enable = true
+limit-results = 20
+teaser-word-count = 30
+use-boolean-and = true
+
+[output.html.fold]
+enable = true
+level = 1
+
+[preprocessor.index]
+[preprocessor.links]

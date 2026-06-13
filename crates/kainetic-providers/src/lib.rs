@@ -27,17 +27,26 @@
 #![deny(clippy::all, clippy::pedantic, missing_docs, unsafe_code)]
 
 mod anthropic;
+mod azure_openai;
 mod error;
 mod gemini;
+mod mistral;
+mod ollama;
 mod openai;
+mod openai_compat;
 mod provider;
+mod router;
 mod types;
 
 pub use anthropic::AnthropicProvider;
+pub use azure_openai::AzureOpenAiProvider;
 pub use error::ProviderError;
 pub use gemini::GeminiProvider;
+pub use mistral::MistralProvider;
+pub use ollama::OllamaProvider;
 pub use openai::OpenAiProvider;
 pub use provider::ModelProvider;
+pub use router::{ProviderRouter, ProviderRouterBuilder};
 pub use types::{
     BoxStream, ChunkDelta, CompletionChunk, CompletionRequest, CompletionResponse, StopReason,
     ToolCall, ToolCallResult,

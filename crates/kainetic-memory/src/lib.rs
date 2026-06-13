@@ -24,6 +24,12 @@ mod in_memory;
 mod types;
 mod working;
 
+#[cfg(feature = "pgvector")]
+mod pgvector;
+
+#[cfg(feature = "qdrant")]
+mod qdrant;
+
 #[cfg(feature = "redis")]
 mod redis_backend;
 
@@ -39,6 +45,12 @@ pub use error::MemoryError;
 pub use in_memory::InMemoryBackend;
 pub use types::{MemoryEntry, MemoryEntryBuilder, MemoryKey, SemanticQuery};
 pub use working::WorkingMemory;
+
+#[cfg(feature = "pgvector")]
+pub use pgvector::PgVectorBackend;
+
+#[cfg(feature = "qdrant")]
+pub use qdrant::QdrantBackend;
 
 #[cfg(feature = "redis")]
 pub use redis_backend::RedisBackend;

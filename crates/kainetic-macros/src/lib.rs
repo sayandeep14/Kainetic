@@ -11,7 +11,6 @@
 #![deny(clippy::all, unsafe_code)]
 
 use proc_macro::TokenStream;
-use proc_macro2::Span;
 use quote::quote;
 use syn::{
     parse_macro_input, punctuated::Punctuated, FnArg, GenericArgument, ItemFn, PathArguments,
@@ -149,7 +148,14 @@ impl syn::parse::Parse for ToolAttrs {
                         attrs.timeout_ms = parse_duration_ms(&s.value());
                     }
                 }
-                _ => {} // unknown attributes are silently ignored for forward compatibility
+                unknown => {
+                    return Err(syn::Error::new_spanned(
+                        &pair.path,
+                        format!(
+                            "#[tool] unknown attribute `{unknown}` — supported attributes: `description`, `timeout`"
+                        ),
+                    ));
+                }
             }
         }
         Ok(attrs)
@@ -173,6 +179,13 @@ fn expand_tool(
     attrs: ToolAttrs,
     func: ItemFn,
 ) -> syn::Result<proc_macro2::TokenStream> {
+    if func.sig.asyncness.is_none() {
+        return Err(syn::Error::new_spanned(
+            func.sig.fn_token,
+            "#[tool] functions must be `async fn` — add the `async` keyword",
+        ));
+    }
+
     let fn_name = &func.sig.ident;
     let fn_name_str = fn_name.to_string();
 
@@ -273,16 +286,16 @@ fn to_pascal_case(s: &str) -> String {
 /// Extracts the type of the first function parameter (the tool input).
 fn extract_first_param_type(func: &ItemFn) -> syn::Result<Box<Type>> {
     let first = func.sig.inputs.first().ok_or_else(|| {
-        syn::Error::new(
-            Span::call_site(),
-            "#[tool] function must have at least one parameter (the typed input)",
+        syn::Error::new_spanned(
+            &func.sig,
+            "#[tool] requires at least one parameter: `fn my_tool(input: MyInput, ctx: ToolContext) -> …`",
         )
     })?;
     match first {
         FnArg::Typed(pat_type) => Ok(pat_type.ty.clone()),
-        FnArg::Receiver(_) => Err(syn::Error::new(
-            Span::call_site(),
-            "#[tool] function must not have a `self` parameter",
+        FnArg::Receiver(r) => Err(syn::Error::new_spanned(
+            r,
+            "#[tool] functions must be free functions, not methods — remove the `self` parameter",
         )),
     }
 }
@@ -321,6 +334,13 @@ impl syn::parse::Parse for AgentAttrs {
 }
 
 fn expand_agent(attrs: AgentAttrs, func: ItemFn) -> syn::Result<proc_macro2::TokenStream> {
+    if func.sig.asyncness.is_none() {
+        return Err(syn::Error::new_spanned(
+            func.sig.fn_token,
+            "#[agent] functions must be `async fn` — add the `async` keyword",
+        ));
+    }
+
     let fn_name = &func.sig.ident;
     let fn_name_str = fn_name.to_string();
 
@@ -400,12 +420,12 @@ fn expand_agent(attrs: AgentAttrs, func: ItemFn) -> syn::Result<proc_macro2::Tok
 
 /// Extracts the second generic argument (`E`) from `Result<T, E>`.
 fn extract_error_type(func: &ItemFn) -> syn::Result<Box<Type>> {
-    let ty = match &func.sig.output {
-        ReturnType::Type(_, ty) => ty,
+    let (arrow, ty) = match &func.sig.output {
+        ReturnType::Type(arrow, ty) => (arrow, ty),
         ReturnType::Default => {
-            return Err(syn::Error::new(
-                Span::call_site(),
-                "#[agent] function must return `Result<OutputType, ErrorType>`",
+            return Err(syn::Error::new_spanned(
+                &func.sig,
+                "#[agent] function must have a return type: `-> Result<OutputType, ErrorType>`",
             ));
         }
     };
@@ -422,9 +442,9 @@ fn extract_error_type(func: &ItemFn) -> syn::Result<Box<Type>> {
         }
     }
 
-    Err(syn::Error::new(
-        Span::call_site(),
-        "#[agent] return type must be `Result<OutputType, ErrorType>`",
+    Err(syn::Error::new_spanned(
+        quote::quote!(#arrow #ty),
+        "#[agent] return type must be `Result<OutputType, ErrorType>` — both type parameters are required",
     ))
 }
 
@@ -432,12 +452,12 @@ fn extract_error_type(func: &ItemFn) -> syn::Result<Box<Type>> {
 
 /// Extracts `T` from a return type of the form `Result<T, _>`.
 fn extract_output_type(func: &ItemFn) -> syn::Result<Box<Type>> {
-    let ty = match &func.sig.output {
-        ReturnType::Type(_, ty) => ty,
+    let (arrow, ty) = match &func.sig.output {
+        ReturnType::Type(arrow, ty) => (arrow, ty),
         ReturnType::Default => {
-            return Err(syn::Error::new(
-                Span::call_site(),
-                "#[tool] function must return `Result<OutputType, ToolError>`",
+            return Err(syn::Error::new_spanned(
+                &func.sig,
+                "#[tool] function must have a return type: `-> Result<OutputType, ToolError>`",
             ));
         }
     };
@@ -454,8 +474,8 @@ fn extract_output_type(func: &ItemFn) -> syn::Result<Box<Type>> {
         }
     }
 
-    Err(syn::Error::new(
-        Span::call_site(),
-        "#[tool] return type must be `Result<OutputType, ToolError>`",
+    Err(syn::Error::new_spanned(
+        quote::quote!(#arrow #ty),
+        "#[tool] return type must be `Result<OutputType, ToolError>` — wrap your output in `Ok(…)`",
     ))
 }

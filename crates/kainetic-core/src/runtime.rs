@@ -138,6 +138,16 @@ impl KaineticRuntimeBuilder {
         self
     }
 
+    /// Sets the language model provider from a pre-existing `Arc`.
+    ///
+    /// Useful when the provider is already behind an `Arc` (e.g. from FFI
+    /// bindings that share the provider across multiple runtimes).
+    #[must_use]
+    pub fn provider_arc(mut self, provider: Arc<dyn ModelProvider>) -> Self {
+        self.provider = Some(provider);
+        self
+    }
+
     /// Registers a tool with the runtime.
     ///
     /// See [`ToolRegistry::register`][kainetic_tools::ToolRegistry::register]

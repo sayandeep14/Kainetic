@@ -1,0 +1,13 @@
+error: #[agent] functions must be `async fn` — add the `async` keyword
+ --> tests/ui/agent_not_async.rs:4:1
+  |
+4 | fn not_async_agent(input: String, _ctx: AgentContext) -> Result<String, AgentError> {
+  | ^^
+
+warning: unused imports: `AgentContext` and `AgentError`
+ --> tests/ui/agent_not_async.rs:1:21
+  |
+1 | use kainetic_core::{AgentContext, AgentError};
+  |                     ^^^^^^^^^^^^  ^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default

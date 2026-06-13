@@ -25,3 +25,12 @@ futures = { workspace = true }
 async-trait = { workspace = true }
 kainetic-macros = { workspace = true }
 tokio = { workspace = true }
+criterion = { workspace = true }
+proptest = { workspace = true }
+schemars = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+[[bench]]
+name = "react_loop"
+harness = false

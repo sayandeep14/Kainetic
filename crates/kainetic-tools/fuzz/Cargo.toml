@@ -1,0 +1,29 @@
+[package]
+name = "kainetic-tools-fuzz"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+# cargo-fuzz manages its own workspace — exclude from the parent.
+[workspace]
+
+[dependencies]
+libfuzzer-sys = "0.4"
+serde_json = "1"
+kainetic-tools = { path = ".." }
+kainetic-schema = { path = "../../kainetic-schema" }
+schemars = "0.8"
+tokio = { version = "1", features = ["rt"] }
+tokio-util = { version = "0.7" }
+
+[[bin]]
+name = "fuzz_input_validation"
+path = "fuzz_targets/fuzz_input_validation.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "fuzz_tool_call"
+path = "fuzz_targets/fuzz_tool_call.rs"
+test = false
+doc = false

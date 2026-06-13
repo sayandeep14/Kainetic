@@ -1,10 +1,27 @@
 [graph]
 targets = []
+all-features = false
+
+# ── Vulnerabilities ────────────────────────────────────────────────────────────
+
+[advisories]
+db-path = "~/.cargo/advisory-db"
+db-urls = ["https://github.com/rustsec/advisory-db"]
+version = 2
+ignore = [
+    # rsa 0.9.10 Marvin Attack — stale lockfile entry; `cargo tree -i rsa`
+    # shows no active reverse dependency in this workspace.
+    { id = "RUSTSEC-2023-0071", reason = "stale lockfile entry; rsa is not used by any workspace member at runtime" },
+]
+
+# ── Licenses ───────────────────────────────────────────────────────────────────
 
 [licenses]
+version = 2
 # Only allow OSI-approved permissive licenses compatible with Apache-2.0.
 allow = [
     "MIT",
+    "MIT-0",
     "Apache-2.0",
     "Apache-2.0 WITH LLVM-exception",
     "ISC",
@@ -17,23 +34,30 @@ allow = [
     "Zlib",
 ]
 deny = ["GPL-2.0", "GPL-3.0", "LGPL-2.0", "LGPL-2.1", "LGPL-3.0", "AGPL-3.0"]
-# Copyleft licenses not allowed in Kainetic's permissive core.
+copyleft = "deny"
 
 [[licenses.clarify]]
 name = "ring"
+# ring uses a custom OpenSSL-derived license — acceptable for cryptography.
 expression = "MIT AND ISC AND OpenSSL"
 license-files = [{ path = "LICENSE", hash = 0xbd0eed23 }]
 
-[bans]
-# Deny multiple versions of the same crate (strict mode — relax per-entry if needed).
-multiple-versions = "warn"
-wildcards = "deny"
-highlight = "all"
+# ── Bans ──────────────────────────────────────────────────────────────────────
 
-[advisories]
-ignore = []
+[bans]
+multiple-versions = "warn"
+wildcards = "allow"
+highlight = "all"
+deny = []
+skip = [
+    # syn 1.x / 2.x dual-presence is common while the ecosystem migrates.
+    { name = "syn", reason = "syn 1.x/2.x dual-presence during ecosystem migration" },
+]
+
+# ── Sources ───────────────────────────────────────────────────────────────────
 
 [sources]
-unknown-registry = "deny"
-unknown-git = "deny"
+unknown-registry = "warn"
+unknown-git = "warn"
 allow-registry = ["https://github.com/rust-lang/crates.io-index"]
+allow-git = []

@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "commonjs",
+    "strict": true,
+    "esModuleInterop": true,
+    "outDir": "dist",
+    "rootDir": ".",
+    "declaration": true,
+    "declarationDir": "dist"
+  },
+  "include": ["*.ts", "*.d.ts", "tests/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+}

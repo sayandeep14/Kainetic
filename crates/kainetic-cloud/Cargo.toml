@@ -1,0 +1,56 @@
+[package]
+name = "kainetic-cloud"
+description = "Kainetic Cloud backend — run ingestion, agent registry, cost alerting, and deployment APIs."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[[bin]]
+name = "kainetic-cloud"
+path = "src/main.rs"
+
+[features]
+default = []
+# Enables ClickHouse for high-throughput span storage (falls back to PostgreSQL without this).
+clickhouse = ["dep:clickhouse"]
+# Integration tests against a live PostgreSQL + optional ClickHouse instance.
+integration = []
+
+[dependencies]
+kainetic-schema = { workspace = true }
+
+# HTTP server
+axum = { workspace = true, features = ["macros"] }
+tower-http = { workspace = true }
+tokio = { workspace = true }
+
+# Database
+sqlx = { workspace = true }
+
+# Auth
+jsonwebtoken = { workspace = true }
+argon2 = { workspace = true }
+base64 = { workspace = true }
+
+# Serialisation
+serde = { workspace = true }
+serde_json = { workspace = true }
+uuid = { workspace = true }
+chrono = { workspace = true }
+
+# Errors & logging
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+
+# Span ingest (OTLP-JSON)
+# ClickHouse optional span storage
+clickhouse = { workspace = true, optional = true }
+
+[dev-dependencies]
+tokio = { workspace = true }
+axum = { workspace = true, features = ["macros"] }
+serde_json = { workspace = true }
+tower = { version = "0.5", features = ["util"] }

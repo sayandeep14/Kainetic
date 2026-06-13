@@ -1,0 +1,13 @@
+error: #[tool] return type must be `Result<OutputType, ToolError>` — wrap your output in `Ok(…)`
+ --> tests/ui/tool_wrong_return.rs:9:56
+  |
+9 | async fn wrong_return(input: Input, _ctx: ToolContext) -> i32 {
+  |                                                        ^^^^^^
+
+warning: unused imports: `ToolContext` and `ToolError`
+ --> tests/ui/tool_wrong_return.rs:1:22
+  |
+1 | use kainetic_tools::{ToolContext, ToolError};
+  |                      ^^^^^^^^^^^  ^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default

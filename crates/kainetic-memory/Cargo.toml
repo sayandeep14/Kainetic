@@ -13,6 +13,10 @@ sqlite = ["dep:rusqlite", "dep:r2d2", "dep:r2d2_sqlite"]
 redis = ["dep:redis"]
 # Enable in-process vector search via usearch.
 usearch = ["dep:usearch"]
+# Enable PostgreSQL-backed memory with pgvector embedding search (via sqlx).
+pgvector = ["dep:sqlx"]
+# Enable Qdrant vector-database backend.
+qdrant = ["dep:qdrant-client"]
 
 [dependencies]
 kainetic-schema = { workspace = true }
@@ -32,6 +36,8 @@ r2d2 = { workspace = true, optional = true }
 r2d2_sqlite = { workspace = true, optional = true }
 redis = { workspace = true, optional = true }
 usearch = { workspace = true, optional = true }
+sqlx = { workspace = true, optional = true }
+qdrant-client = { workspace = true, optional = true }
 
 [dev-dependencies]
 tokio = { workspace = true }

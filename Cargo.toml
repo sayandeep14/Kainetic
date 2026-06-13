@@ -1,5 +1,10 @@
 [workspace]
 resolver = "2"
+exclude = [
+    # cargo-fuzz creates its own nested workspace; exclude so it doesn't
+    # interfere with `cargo build --workspace`.
+    "crates/kainetic-tools/fuzz",
+]
 members = [
     "crates/kainetic",
     "crates/kainetic-schema",
@@ -11,8 +16,11 @@ members = [
     "crates/kainetic-macros",
     "crates/kainetic-orchestra",
     "crates/kainetic-cli",
+    "crates/kainetic-cloud",
     "examples/simple-agent",
     "examples/multi-agent-pipeline",
+    "bindings/python",
+    "bindings/typescript",
 ]
 
 [workspace.package]
@@ -70,10 +78,34 @@ kainetic-memory = { path = "crates/kainetic-memory" }
 kainetic-telemetry = { path = "crates/kainetic-telemetry" }
 kainetic-macros = { path = "crates/kainetic-macros" }
 kainetic-orchestra = { path = "crates/kainetic-orchestra" }
+kainetic-cloud = { path = "crates/kainetic-cloud" }
 wiremock = "0.6"
+trybuild = "1"
 petgraph = "0.6"
 rand = "0.8"
+
+# Part 13: hardening + benchmarks
+criterion = { version = "0.5", features = ["html_reports", "async_tokio"] }
+proptest = "1"
 indexmap = { version = "2", features = ["serde"] }
+
+# Language bindings
+pyo3 = { version = "0.24", features = ["extension-module", "abi3-py38"] }
+napi = { version = "2", default-features = false, features = ["napi4", "tokio_rt"] }
+napi-derive = "2"
+
+# Part 10: additional tools + memory backends
+scraper = "0.19"
+sqlparser = "0.47"
+sqlx = { version = "0.8", features = ["runtime-tokio", "postgres", "json", "uuid", "chrono"] }
+qdrant-client = "1"
+
+# Part 11: cloud backend
+jsonwebtoken = "9"
+argon2 = "0.5"
+tower-http = { version = "0.6", features = ["cors", "trace", "request-id"] }
+clickhouse = { version = "0.12", default-features = false, features = ["lz4"] }
+base64 = "0.22"
 
 # CLI
 clap = { version = "4", features = ["derive", "env"] }
@@ -84,7 +116,7 @@ toml = "0.8"
 
 # Telemetry
 prometheus = { version = "0.13", default-features = false, features = ["process"] }
-axum = { version = "0.7", default-features = false, features = ["http1", "tokio"] }
+axum = { version = "0.7", default-features = false, features = ["http1", "tokio", "json", "query"] }
 
 # OTel (optional feature in kainetic-telemetry)
 opentelemetry = { version = "0.24", features = ["trace"] }

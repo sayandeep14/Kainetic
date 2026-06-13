@@ -59,6 +59,7 @@ mod error;
 mod event;
 mod react;
 mod runtime;
+mod proptest_react;
 
 pub use agent::{Agent, AgentFuture};
 pub use config::{AgentConfig, AgentConfigBuilder, SystemPrompt};

@@ -28,4 +28,8 @@ pub enum CliError {
     /// A feature not yet implemented.
     #[error("{0} is not yet implemented — coming in a future release")]
     NotImplemented(String),
+
+    /// An unexpected internal error (e.g. network failure, JSON decode error).
+    #[error("{0}")]
+    Internal(String),
 }

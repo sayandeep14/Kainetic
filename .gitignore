@@ -27,22 +27,35 @@ flamegraph.svg
 # Benchmark baselines (Criterion stores HTML reports in target/)
 criterion/
 
-# Python bindings build artifacts
-bindings/python/__pycache__/
-bindings/python/*.egg-info/
-bindings/python/dist/
-bindings/python/.venv/
+# Node / JS build artifacts (applies to dashboard/ and any future JS packages)
+node_modules/
+dist/
+.vite/
+*.tsbuildinfo
 
-# TypeScript bindings build artifacts
-bindings/typescript/node_modules/
-bindings/typescript/dist/
+# Python build artifacts (all locations)
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.egg
+.venv/
+dist/
+
+# Rust + maturin Python extension build
+bindings/python/target/
+bindings/python/*.so
+bindings/python/*.pyd
+
+# napi-rs Node extension build
 bindings/typescript/*.node
+bindings/typescript/target/
 
 # Docker / observability scratch data
 examples/observability/data/
 
-# Generated docs
+# Generated docs (mdBook build output)
 book/
+docs/book/
 
 # Claude related
 .claude/

@@ -1,0 +1,13 @@
+error: #[tool] requires at least one parameter: `fn my_tool(input: MyInput, ctx: ToolContext) -> …`
+ --> tests/ui/tool_no_params.rs:9:1
+  |
+9 | async fn no_params() -> Result<Output, ToolError> {
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `kainetic_tools::ToolError`
+ --> tests/ui/tool_no_params.rs:1:5
+  |
+1 | use kainetic_tools::ToolError;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default

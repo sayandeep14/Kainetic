@@ -1,0 +1,26 @@
+[package]
+name = "kainetic-node"
+description = "Node.js bindings for Kainetic via napi-rs."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+kainetic-core = { workspace = true }
+kainetic-providers = { workspace = true }
+kainetic-tools = { workspace = true }
+kainetic-schema = { workspace = true }
+napi = { workspace = true }
+napi-derive = { workspace = true }
+tokio = { workspace = true }
+serde_json = { workspace = true }
+schemars = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+
+[build-dependencies]
+napi-build = "2"
