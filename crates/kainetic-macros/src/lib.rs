@@ -1,6 +1,6 @@
 //! Procedural macros for Kainetic: `#[tool]`, `#[agent]`, and `#[pipeline]`.
 //!
-//! - `#[tool]` — derives a [`kainetic_tools::Tool`] impl and a matching
+//! - `#[tool]` — derives a `kainetic_tools::Tool` impl and a matching
 //!   struct from an async function, injecting JSON Schema deserialization,
 //!   timeout, and a `tracing` span.
 //! - `#[agent]` — derives an `Agent` impl from an async function.
@@ -19,7 +19,7 @@ use syn::{
 
 // ─── #[tool] ─────────────────────────────────────────────────────────────────
 
-/// Derives a [`kainetic_tools::Tool`] implementation from an async function.
+/// Derives a `kainetic_tools::Tool` implementation from an async function.
 ///
 /// The macro:
 /// 1. Keeps the original function in place.
@@ -40,7 +40,7 @@ use syn::{
 /// ```
 ///
 /// - First parameter: typed input (must implement `Deserialize` + `JsonSchema`).
-/// - Second parameter: [`kainetic_tools::ToolContext`] (name can vary).
+/// - Second parameter: `kainetic_tools::ToolContext` (name can vary).
 /// - Return type: `Result<OutputType, ToolError>` where `OutputType: Serialize + JsonSchema`.
 ///
 /// # Generated items
@@ -60,7 +60,7 @@ pub fn tool(attr: TokenStream, item: TokenStream) -> TokenStream {
     }
 }
 
-/// Derives a [`kainetic_core::Agent`] implementation from an async function.
+/// Derives a `kainetic_core::Agent` implementation from an async function.
 ///
 /// The macro:
 /// 1. Keeps the original function in place.
@@ -78,7 +78,7 @@ pub fn tool(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// ```
 ///
 /// - First parameter: the typed input (`type Input`).
-/// - Second parameter: [`kainetic_core::AgentContext`] (name can vary).
+/// - Second parameter: `kainetic_core::AgentContext` (name can vary).
 /// - Return type: `Result<OutputType, ErrorType>`.
 ///
 /// # Generated items

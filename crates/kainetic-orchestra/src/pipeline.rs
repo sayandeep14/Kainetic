@@ -455,9 +455,6 @@ mod tests {
         use std::sync::atomic::{AtomicU32, Ordering};
         use std::sync::Arc;
 
-        let counter = Arc::new(AtomicU32::new(0));
-        let c = Arc::clone(&counter);
-
         struct CountAgent {
             config: AgentConfig,
             counter: Arc<AtomicU32>,
@@ -483,6 +480,9 @@ mod tests {
                 Box::pin(async move { Ok(n.to_string()) })
             }
         }
+
+        let counter = Arc::new(AtomicU32::new(0));
+        let c = Arc::clone(&counter);
 
         let pipeline = Pipeline::builder()
             .agent(

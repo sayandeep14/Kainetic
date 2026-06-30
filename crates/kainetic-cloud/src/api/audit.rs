@@ -56,6 +56,7 @@ pub fn compute_chain_hash(
 /// # Errors
 ///
 /// Returns [`CloudError::Database`] on any database failure.
+#[allow(clippy::too_many_arguments)]
 pub async fn append_audit(
     pool: &sqlx::PgPool,
     hmac_key: &str,

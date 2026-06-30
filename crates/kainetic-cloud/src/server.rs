@@ -36,7 +36,6 @@ use crate::{
 /// | `POST` | `/v1/teams/:id/api-keys` | Generate API key |
 /// | `GET`  | `/v1/audit` | Audit log (admin only) |
 /// | `GET`  | `/healthz` | Health check |
-#[must_use]
 pub fn build_router(state: AppState) -> Router {
     let api = Router::new()
         // One-time bootstrap (only works when no users exist yet)

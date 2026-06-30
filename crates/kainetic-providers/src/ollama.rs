@@ -160,7 +160,7 @@ mod tests {
     fn cost_is_zero() {
         let p = OllamaProvider::new();
         let usage = TokenUsage::new(1_000_000, 1_000_000);
-        assert_eq!(p.cost_usd(&usage, "llama3.2"), 0.0);
+        assert!((p.cost_usd(&usage, "llama3.2") - 0.0_f64).abs() < f64::EPSILON);
     }
 
     #[test]
