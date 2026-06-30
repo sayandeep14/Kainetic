@@ -132,8 +132,8 @@ fn validate_input(schema: &RootSchema, input: &serde_json::Value) -> Result<(), 
 mod tests {
     use kainetic_schema::{RootSchema, RunId};
     use schemars::schema_for;
-    use serde::{Deserialize, Serialize};
     use schemars::JsonSchema;
+    use serde::{Deserialize, Serialize};
     use tokio_util::sync::CancellationToken;
 
     use super::*;
@@ -174,8 +174,10 @@ mod tests {
             Box::pin(async move {
                 let typed: EchoInput = serde_json::from_value(input)
                     .map_err(|e| ToolError::ExecutionFailed(e.to_string()))?;
-                serde_json::to_value(EchoOutput { echo: typed.message })
-                    .map_err(|e| ToolError::ExecutionFailed(e.to_string()))
+                serde_json::to_value(EchoOutput {
+                    echo: typed.message,
+                })
+                .map_err(|e| ToolError::ExecutionFailed(e.to_string()))
             })
         }
     }

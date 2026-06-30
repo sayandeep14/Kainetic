@@ -49,8 +49,7 @@ impl PyKaineticRuntime {
         if let Some(tool_list) = tools {
             for t in tool_list {
                 // Unwrap the Arc — Tool is cheaply cloneable.
-                let tool_impl = Arc::try_unwrap(t.inner)
-                    .unwrap_or_else(|arc| (*arc).clone());
+                let tool_impl = Arc::try_unwrap(t.inner).unwrap_or_else(|arc| (*arc).clone());
                 builder = builder.tool(tool_impl);
             }
         }

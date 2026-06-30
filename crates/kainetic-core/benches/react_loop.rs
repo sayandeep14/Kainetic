@@ -13,8 +13,8 @@ use async_trait::async_trait;
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
 use kainetic_core::{AgentConfig, AgentContext, ReActLoop};
 use kainetic_providers::{
-    BoxStream, CompletionChunk, CompletionRequest, CompletionResponse, ModelProvider, ProviderError,
-    StopReason,
+    BoxStream, CompletionChunk, CompletionRequest, CompletionResponse, ModelProvider,
+    ProviderError, StopReason,
 };
 use kainetic_schema::{MessageContent, RootSchema, TokenUsage};
 use kainetic_tools::{Tool, ToolContext, ToolFuture, ToolRegistry};
@@ -37,7 +37,9 @@ impl QueuedProvider {
 
     fn text_response(text: &str) -> CompletionResponse {
         CompletionResponse {
-            content: vec![MessageContent::Text { text: text.to_owned() }],
+            content: vec![MessageContent::Text {
+                text: text.to_owned(),
+            }],
             stop_reason: StopReason::EndTurn,
             usage: TokenUsage::new(10, 5),
             model: "bench-mock".to_owned(),
@@ -146,9 +148,7 @@ fn bench_cold_start(c: &mut Criterion) {
 
     c.bench_function("react_loop_cold_start", |b| {
         b.to_async(&rt).iter(|| async {
-            let provider = Arc::new(QueuedProvider::new([QueuedProvider::text_response(
-                "done",
-            )]));
+            let provider = Arc::new(QueuedProvider::new([QueuedProvider::text_response("done")]));
             let ctx = make_context(provider, 0);
             let loop_ = ReActLoop::new(AgentConfig::builder().build());
             loop_.execute("hi", ctx).await.unwrap()
@@ -162,59 +162,49 @@ fn bench_parallel_vs_serial(c: &mut Criterion) {
     let mut group = c.benchmark_group("tool_dispatch");
 
     for n_tools in [1usize, 4, 8, 16] {
-        group.bench_with_input(
-            BenchmarkId::new("parallel", n_tools),
-            &n_tools,
-            |b, &n| {
-                b.to_async(&rt).iter(|| async move {
-                    let provider = Arc::new(QueuedProvider::new([
-                        QueuedProvider::tool_calls_response(
-                            (0..n)
-                                .map(|i| {
-                                    (
-                                        format!("call_{i}"),
-                                        format!("echo_{i}"),
-                                        serde_json::json!({ "msg": format!("hi-{i}") }),
-                                    )
-                                })
-                                .collect(),
-                        ),
-                        QueuedProvider::text_response("all done"),
-                    ]));
-                    let ctx = make_context(provider, n);
-                    let loop_ = ReActLoop::new(AgentConfig::builder().build());
-                    loop_.execute("go", ctx).await.unwrap()
-                });
-            },
-        );
+        group.bench_with_input(BenchmarkId::new("parallel", n_tools), &n_tools, |b, &n| {
+            b.to_async(&rt).iter(|| async move {
+                let provider = Arc::new(QueuedProvider::new([
+                    QueuedProvider::tool_calls_response(
+                        (0..n)
+                            .map(|i| {
+                                (
+                                    format!("call_{i}"),
+                                    format!("echo_{i}"),
+                                    serde_json::json!({ "msg": format!("hi-{i}") }),
+                                )
+                            })
+                            .collect(),
+                    ),
+                    QueuedProvider::text_response("all done"),
+                ]));
+                let ctx = make_context(provider, n);
+                let loop_ = ReActLoop::new(AgentConfig::builder().build());
+                loop_.execute("go", ctx).await.unwrap()
+            });
+        });
 
-        group.bench_with_input(
-            BenchmarkId::new("serial", n_tools),
-            &n_tools,
-            |b, &n| {
-                b.to_async(&rt).iter(|| async move {
-                    let provider = Arc::new(QueuedProvider::new([
-                        QueuedProvider::tool_calls_response(
-                            (0..n)
-                                .map(|i| {
-                                    (
-                                        format!("call_{i}"),
-                                        format!("echo_{i}"),
-                                        serde_json::json!({ "msg": format!("hi-{i}") }),
-                                    )
-                                })
-                                .collect(),
-                        ),
-                        QueuedProvider::text_response("all done"),
-                    ]));
-                    let ctx = make_context(provider, n);
-                    let loop_ = ReActLoop::new(
-                        AgentConfig::builder().sequential_tools().build(),
-                    );
-                    loop_.execute("go", ctx).await.unwrap()
-                });
-            },
-        );
+        group.bench_with_input(BenchmarkId::new("serial", n_tools), &n_tools, |b, &n| {
+            b.to_async(&rt).iter(|| async move {
+                let provider = Arc::new(QueuedProvider::new([
+                    QueuedProvider::tool_calls_response(
+                        (0..n)
+                            .map(|i| {
+                                (
+                                    format!("call_{i}"),
+                                    format!("echo_{i}"),
+                                    serde_json::json!({ "msg": format!("hi-{i}") }),
+                                )
+                            })
+                            .collect(),
+                    ),
+                    QueuedProvider::text_response("all done"),
+                ]));
+                let ctx = make_context(provider, n);
+                let loop_ = ReActLoop::new(AgentConfig::builder().sequential_tools().build());
+                loop_.execute("go", ctx).await.unwrap()
+            });
+        });
     }
 
     group.finish();

@@ -9,14 +9,13 @@ use crate::{MemoryEntry, MemoryError, MemoryKey, SemanticQuery};
 /// Backends are keyed by [`MemoryKey`] (namespace + key string) and store
 /// [`MemoryEntry`] values. [`search`] provides semantic similarity search
 /// and is only meaningful for vector-indexed backends such as
-/// [`UsearchBackend`]; non-vector backends return
+/// `UsearchBackend`; non-vector backends return
 /// [`MemoryError::Unsupported`].
 ///
 /// All methods take `&self`, meaning implementations must use interior
 /// mutability (e.g. `DashMap`, `Mutex`) for any mutable state.
 ///
 /// [`search`]: MemoryBackend::search
-/// [`UsearchBackend`]: crate::UsearchBackend
 #[async_trait]
 pub trait MemoryBackend: Send + Sync + 'static {
     /// Retrieves the entry stored under `key`, or `None` if absent.

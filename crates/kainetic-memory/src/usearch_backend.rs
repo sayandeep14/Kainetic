@@ -53,7 +53,9 @@ impl UsearchBackend {
             multi: false,
         };
         let index = Index::new(&options).map_err(|e| MemoryError::Backend(e.to_string()))?;
-        index.reserve(1024).map_err(|e| MemoryError::Backend(e.to_string()))?;
+        index
+            .reserve(1024)
+            .map_err(|e| MemoryError::Backend(e.to_string()))?;
         Ok(Self {
             index: Arc::new(Mutex::new(index)),
             store: Arc::new(DashMap::new()),
@@ -227,7 +229,11 @@ mod tests {
     #[tokio::test]
     async fn read_missing_returns_none() {
         let b = backend();
-        assert!(b.read(&MemoryKey::new("ns", "missing")).await.unwrap().is_none());
+        assert!(b
+            .read(&MemoryKey::new("ns", "missing"))
+            .await
+            .unwrap()
+            .is_none());
     }
 
     #[tokio::test]
@@ -285,5 +291,4 @@ mod tests {
             .unwrap_err();
         assert!(matches!(err, MemoryError::Backend(_)));
     }
-
 }

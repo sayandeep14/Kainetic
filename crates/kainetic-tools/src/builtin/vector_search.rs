@@ -1,4 +1,4 @@
-//! [`VectorSearchTool`] — semantic similarity search over a [`MemoryBackend`].
+//! `VectorSearchTool` — semantic similarity search over a `MemoryBackend`.
 //!
 //! Requires the `vector-search` crate feature.
 

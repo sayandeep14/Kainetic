@@ -125,13 +125,9 @@ fn bench_list_descriptors(c: &mut Criterion) {
             registry.register(NamedTool(name));
         }
 
-        group.bench_with_input(
-            BenchmarkId::from_parameter(n_tools),
-            &n_tools,
-            |b, _| {
-                b.iter(|| registry.list());
-            },
-        );
+        group.bench_with_input(BenchmarkId::from_parameter(n_tools), &n_tools, |b, _| {
+            b.iter(|| registry.list());
+        });
     }
 
     group.finish();

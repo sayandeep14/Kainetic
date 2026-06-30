@@ -51,9 +51,7 @@ pub async fn run(args: RunArgs) -> Result<(), CliError> {
         style(&args.agent).cyan()
     );
 
-    let status = cmd.status().map_err(|e| {
-        CliError::Io(e)
-    })?;
+    let status = cmd.status().map_err(CliError::Io)?;
 
     if !status.success() {
         return Err(CliError::CommandFailed {

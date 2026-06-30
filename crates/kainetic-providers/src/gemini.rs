@@ -5,7 +5,7 @@ use std::time::Duration;
 use async_trait::async_trait;
 use eventsource_stream::Eventsource;
 use futures::StreamExt;
-use kainetic_schema::{Message, MessageContent, MessageRole, ToolDescriptor, TokenUsage};
+use kainetic_schema::{Message, MessageContent, MessageRole, TokenUsage, ToolDescriptor};
 use serde::{Deserialize, Serialize};
 use tracing::warn;
 
@@ -316,8 +316,7 @@ impl ModelProvider for GeminiProvider {
         for attempt in 0..MAX_RETRIES {
             match self.do_complete(&request).await {
                 Err(ProviderError::RateLimited { retry_after }) => {
-                    let delay =
-                        retry_after.unwrap_or_else(|| Duration::from_secs(1u64 << attempt));
+                    let delay = retry_after.unwrap_or_else(|| Duration::from_secs(1u64 << attempt));
                     warn!(attempt, ?delay, "gemini: rate limited, retrying");
                     tokio::time::sleep(delay + jitter()).await;
                 }
@@ -784,7 +783,9 @@ mod tests {
         );
 
         Mock::given(method("POST"))
-            .and(path("/v1beta/models/gemini-2.5-flash:streamGenerateContent"))
+            .and(path(
+                "/v1beta/models/gemini-2.5-flash:streamGenerateContent",
+            ))
             .respond_with(
                 ResponseTemplate::new(200)
                     .insert_header("content-type", "text/event-stream")
@@ -880,7 +881,10 @@ mod tests {
     async fn integration_complete() {
         let provider = match GeminiProvider::from_env() {
             Ok(p) => p,
-            Err(e) => { eprintln!("GEMINI_API_KEY not set — skipping ({e})"); return; }
+            Err(e) => {
+                eprintln!("GEMINI_API_KEY not set — skipping ({e})");
+                return;
+            }
         };
         // Use a generous token limit — gemini-2.5-flash is a thinking model and
         // consumes thinking tokens before output tokens, so a very small budget
@@ -892,7 +896,10 @@ mod tests {
         .with_max_tokens(512);
         let response = match provider.complete(request).await {
             Ok(r) => r,
-            Err(e) => { eprintln!("Gemini API unavailable — skipping ({e})"); return; }
+            Err(e) => {
+                eprintln!("Gemini API unavailable — skipping ({e})");
+                return;
+            }
         };
         assert!(
             matches!(
@@ -902,6 +909,9 @@ mod tests {
             "unexpected stop reason: {:?}",
             response.stop_reason
         );
-        assert!(response.text().is_some(), "expected non-empty text response");
+        assert!(
+            response.text().is_some(),
+            "expected non-empty text response"
+        );
     }
 }

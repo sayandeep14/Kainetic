@@ -3,8 +3,7 @@
 use std::sync::Arc;
 
 use kainetic_providers::{
-    AnthropicProvider as CoreAnthropicProvider, ModelProvider,
-    OpenAiProvider as CoreOpenAiProvider,
+    AnthropicProvider as CoreAnthropicProvider, ModelProvider, OpenAiProvider as CoreOpenAiProvider,
 };
 use napi_derive::napi;
 

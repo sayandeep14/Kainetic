@@ -76,7 +76,7 @@ impl TelemetryConfig {
         self
     }
 
-    /// Fires a [`CostAlert::PerRunExceeded`] warning when a single run
+    /// Fires a [`crate::CostAlert::PerRunExceeded`] warning when a single run
     /// exceeds this cost in USD.
     #[must_use]
     pub fn alert_cost_per_run_usd(mut self, usd: f64) -> Self {
@@ -84,7 +84,7 @@ impl TelemetryConfig {
         self
     }
 
-    /// Fires a [`CostAlert::PerHourExceeded`] warning when total spend in the
+    /// Fires a [`crate::CostAlert::PerHourExceeded`] warning when total spend in the
     /// rolling hour exceeds this cost in USD.
     #[must_use]
     pub fn alert_cost_per_hour_usd(mut self, usd: f64) -> Self {
@@ -118,9 +118,7 @@ impl TelemetryConfig {
         rx: broadcast::Receiver<AgentEvent>,
     ) -> Result<TelemetryHandle, TelemetryError> {
         #[allow(unused_variables)]
-        let service_name = self
-            .service_name
-            .unwrap_or_else(|| "kainetic".to_owned());
+        let service_name = self.service_name.unwrap_or_else(|| "kainetic".to_owned());
 
         // --- Tracing ---
         #[cfg(feature = "otlp")]
@@ -147,10 +145,7 @@ impl TelemetryConfig {
         let metrics = Arc::new(KaineticMetrics::new(&registry)?);
 
         // --- Event handler ---
-        let cost = CostAccumulator::new(
-            self.alert_cost_per_run_usd,
-            self.alert_cost_per_hour_usd,
-        );
+        let cost = CostAccumulator::new(self.alert_cost_per_run_usd, self.alert_cost_per_hour_usd);
         let handler = TelemetryEventHandler::new(Arc::clone(&metrics), cost);
         let handler_handle = handler.spawn(rx);
 
@@ -174,7 +169,7 @@ impl TelemetryConfig {
 ///
 /// Dropping this handle aborts the event handler task and (if started) the
 /// metrics server. Any buffered `OTel` spans are flushed on drop via
-/// [`OtelGuard`][crate::otel::OtelGuard].
+/// `OtelGuard`.
 pub struct TelemetryHandle {
     /// The Prometheus registry — accessible for custom metrics or testing.
     pub registry: Arc<Registry>,

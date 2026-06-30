@@ -191,7 +191,10 @@ mod tests {
     async fn integration_complete() {
         let provider = match MistralProvider::from_env() {
             Ok(p) => p,
-            Err(e) => { eprintln!("MISTRAL_API_KEY not set — skipping ({e})"); return; }
+            Err(e) => {
+                eprintln!("MISTRAL_API_KEY not set — skipping ({e})");
+                return;
+            }
         };
         let resp = match provider
             .complete(
@@ -204,7 +207,10 @@ mod tests {
             .await
         {
             Ok(r) => r,
-            Err(e) => { eprintln!("Mistral API unavailable — skipping ({e})"); return; }
+            Err(e) => {
+                eprintln!("Mistral API unavailable — skipping ({e})");
+                return;
+            }
         };
         assert!(resp.text().is_some());
     }

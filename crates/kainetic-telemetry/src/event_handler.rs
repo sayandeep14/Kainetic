@@ -261,9 +261,7 @@ impl TelemetryEventHandler {
             } => {
                 warn!(
                     agent,
-                    total_usd,
-                    threshold_usd,
-                    "COST ALERT: hourly spend exceeded threshold"
+                    total_usd, threshold_usd, "COST ALERT: hourly spend exceeded threshold"
                 );
             }
         }
@@ -297,10 +295,7 @@ mod tests {
             run_id: id,
             agent: "test_agent".to_owned(),
         });
-        let val = metrics
-            .active_runs
-            .with_label_values(&["test_agent"])
-            .get();
+        let val = metrics.active_runs.with_label_values(&["test_agent"]).get();
         assert!((val - 1.0).abs() < f64::EPSILON);
     }
 
@@ -318,10 +313,7 @@ mod tests {
             cost_usd: 0.01,
             latency_ms: 500,
         });
-        assert!(
-            (metrics.active_runs.with_label_values(&["my_agent"]).get()).abs()
-                < f64::EPSILON
-        );
+        assert!((metrics.active_runs.with_label_values(&["my_agent"]).get()).abs() < f64::EPSILON);
         assert!(
             (metrics
                 .agent_runs_total

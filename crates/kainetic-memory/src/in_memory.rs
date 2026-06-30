@@ -10,10 +10,9 @@ use crate::{backend::MemoryBackend, MemoryEntry, MemoryError, MemoryKey, Semanti
 /// All data is lost when the backend is dropped. Suitable for tests and
 /// single-process agents that don't need cross-run persistence.
 ///
-/// [`search`] is not supported — use [`UsearchBackend`] for semantic search.
+/// [`search`] is not supported — use `UsearchBackend` (feature `usearch`) for semantic search.
 ///
 /// [`search`]: InMemoryBackend::search
-/// [`UsearchBackend`]: crate::UsearchBackend
 #[derive(Default)]
 pub struct InMemoryBackend {
     store: DashMap<String, MemoryEntry>,
@@ -90,15 +89,25 @@ mod tests {
     #[tokio::test]
     async fn read_missing_key_returns_none() {
         let backend = InMemoryBackend::new();
-        assert!(backend.read(&key("test", "missing")).await.unwrap().is_none());
+        assert!(backend
+            .read(&key("test", "missing"))
+            .await
+            .unwrap()
+            .is_none());
     }
 
     #[tokio::test]
     async fn write_overwrites_existing_entry() {
         let backend = InMemoryBackend::new();
         let k = key("ns", "k");
-        backend.write(k.clone(), MemoryEntry::new("v1")).await.unwrap();
-        backend.write(k.clone(), MemoryEntry::new("v2")).await.unwrap();
+        backend
+            .write(k.clone(), MemoryEntry::new("v1"))
+            .await
+            .unwrap();
+        backend
+            .write(k.clone(), MemoryEntry::new("v2"))
+            .await
+            .unwrap();
         assert_eq!(backend.read(&k).await.unwrap().unwrap().content, "v2");
     }
 
@@ -106,7 +115,10 @@ mod tests {
     async fn delete_removes_entry() {
         let backend = InMemoryBackend::new();
         let k = key("ns", "del");
-        backend.write(k.clone(), MemoryEntry::new("bye")).await.unwrap();
+        backend
+            .write(k.clone(), MemoryEntry::new("bye"))
+            .await
+            .unwrap();
         backend.delete(&k).await.unwrap();
         assert!(backend.read(&k).await.unwrap().is_none());
     }

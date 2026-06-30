@@ -59,8 +59,7 @@ impl CloudConfig {
         let jwt_secret = std::env::var("JWT_SECRET")
             .unwrap_or_else(|_| "dev-secret-change-me-in-production".to_string());
 
-        let audit_hmac_key =
-            std::env::var("AUDIT_HMAC_KEY").unwrap_or_else(|_| jwt_secret.clone());
+        let audit_hmac_key = std::env::var("AUDIT_HMAC_KEY").unwrap_or_else(|_| jwt_secret.clone());
 
         let jwt_ttl_secs: u64 = std::env::var("JWT_TTL_SECS")
             .ok()
@@ -105,8 +104,8 @@ mod tests {
     #[test]
     fn from_env_uses_defaults() {
         // Ensure env vars from CI don't bleed in.
-        let _ = std::env::remove_var("PORT");
-        let _ = std::env::remove_var("DATABASE_URL");
+        std::env::remove_var("PORT");
+        std::env::remove_var("DATABASE_URL");
         let cfg = CloudConfig::from_env();
         assert_eq!(cfg.port, 8080);
         assert!(cfg.database_url.contains("kainetic_cloud"));
@@ -115,7 +114,7 @@ mod tests {
 
     #[test]
     fn jwt_ttl_default_is_24h() {
-        let _ = std::env::remove_var("JWT_TTL_SECS");
+        std::env::remove_var("JWT_TTL_SECS");
         let cfg = CloudConfig::from_env();
         assert_eq!(cfg.jwt_ttl.as_secs(), 86_400);
     }

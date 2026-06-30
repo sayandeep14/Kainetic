@@ -117,11 +117,8 @@ impl Tool for SqlQueryTool {
                     .prepare(&query)
                     .map_err(|e| format!("prepare failed: {e}"))?;
 
-                let column_names: Vec<String> = stmt
-                    .column_names()
-                    .into_iter()
-                    .map(str::to_owned)
-                    .collect();
+                let column_names: Vec<String> =
+                    stmt.column_names().into_iter().map(str::to_owned).collect();
 
                 let mut rows = Vec::new();
                 let mut result_rows = stmt
@@ -133,24 +130,20 @@ impl Tool for SqlQueryTool {
                     .map_err(|e| format!("row fetch failed: {e}"))?
                 {
                     let values: Vec<serde_json::Value> = (0..column_names.len())
-                        .map(|i| {
-                            match row.get_ref(i).map_err(|e| e.to_string())? {
-                                rusqlite::types::ValueRef::Null => Ok(serde_json::Value::Null),
-                                rusqlite::types::ValueRef::Integer(n) => {
-                                    Ok(serde_json::Value::Number(n.into()))
-                                }
-                                rusqlite::types::ValueRef::Real(f) => {
-                                    Ok(serde_json::Value::Number(
-                                        serde_json::Number::from_f64(f).unwrap_or_else(|| 0.into()),
-                                    ))
-                                }
-                                rusqlite::types::ValueRef::Text(t) => Ok(serde_json::Value::String(
-                                    String::from_utf8_lossy(t).into_owned(),
-                                )),
-                                rusqlite::types::ValueRef::Blob(b) => Ok(serde_json::Value::String(
-                                    format!("<blob {} bytes>", b.len()),
-                                )),
+                        .map(|i| match row.get_ref(i).map_err(|e| e.to_string())? {
+                            rusqlite::types::ValueRef::Null => Ok(serde_json::Value::Null),
+                            rusqlite::types::ValueRef::Integer(n) => {
+                                Ok(serde_json::Value::Number(n.into()))
                             }
+                            rusqlite::types::ValueRef::Real(f) => Ok(serde_json::Value::Number(
+                                serde_json::Number::from_f64(f).unwrap_or_else(|| 0.into()),
+                            )),
+                            rusqlite::types::ValueRef::Text(t) => Ok(serde_json::Value::String(
+                                String::from_utf8_lossy(t).into_owned(),
+                            )),
+                            rusqlite::types::ValueRef::Blob(b) => Ok(serde_json::Value::String(
+                                format!("<blob {} bytes>", b.len()),
+                            )),
                         })
                         .collect::<Result<_, String>>()?;
                     rows.push(values);

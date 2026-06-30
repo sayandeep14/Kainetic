@@ -11,7 +11,7 @@ use crate::{
 /// Abstraction over a language model provider.
 ///
 /// Implement this trait to add a new backend (e.g. Gemini, Mistral, Ollama).
-/// All methods are object-safe via [`async_trait`], so providers can be stored
+/// All methods are object-safe via `async_trait`, so providers can be stored
 /// as `Arc<dyn ModelProvider>`.
 ///
 /// # Example

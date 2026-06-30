@@ -19,16 +19,16 @@
 
 #![cfg(test)]
 
+use std::collections::VecDeque;
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::{Arc, Mutex};
-use std::collections::VecDeque;
 
 use async_trait::async_trait;
 use proptest::prelude::*;
 
 use kainetic_providers::{
-    BoxStream, CompletionChunk, CompletionRequest, CompletionResponse, ModelProvider, ProviderError,
-    StopReason,
+    BoxStream, CompletionChunk, CompletionRequest, CompletionResponse, ModelProvider,
+    ProviderError, StopReason,
 };
 use kainetic_schema::{MessageContent, TokenUsage};
 use kainetic_tools::ToolRegistry;
@@ -52,7 +52,9 @@ impl CountingProvider {
 
     fn text(text: &str) -> CompletionResponse {
         CompletionResponse {
-            content: vec![MessageContent::Text { text: text.to_owned() }],
+            content: vec![MessageContent::Text {
+                text: text.to_owned(),
+            }],
             stop_reason: StopReason::EndTurn,
             usage: TokenUsage::new(5, 5),
             model: "prop-mock".to_owned(),

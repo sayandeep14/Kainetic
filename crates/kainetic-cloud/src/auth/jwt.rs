@@ -70,12 +70,7 @@ pub fn decode_token(token: &str, secret: &str) -> Result<Claims, CloudError> {
 
 /// Builds a [`Claims`] with the given fields and an expiry derived from `ttl_secs`.
 #[must_use]
-pub fn build_claims(
-    user_id: &str,
-    team_id: &str,
-    role: Role,
-    ttl_secs: u64,
-) -> Claims {
+pub fn build_claims(user_id: &str, team_id: &str, role: Role, ttl_secs: u64) -> Claims {
     let now = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .unwrap_or_default()
@@ -97,12 +92,7 @@ mod tests {
     const SECRET: &str = "test-secret-32-bytes-exactly!!xx";
 
     fn test_claims() -> Claims {
-        build_claims(
-            "user-uuid-1234",
-            "team-uuid-5678",
-            Role::Developer,
-            3600,
-        )
+        build_claims("user-uuid-1234", "team-uuid-5678", Role::Developer, 3600)
     }
 
     #[test]

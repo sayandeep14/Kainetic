@@ -2,7 +2,9 @@
 
 use kainetic_schema::RunId;
 
-use crate::{backend::MemoryBackend, in_memory::InMemoryBackend, MemoryEntry, MemoryError, MemoryKey};
+use crate::{
+    backend::MemoryBackend, in_memory::InMemoryBackend, MemoryEntry, MemoryError, MemoryKey,
+};
 
 /// Short-lived, run-scoped memory store.
 ///
@@ -52,11 +54,7 @@ impl WorkingMemory {
     /// # Errors
     ///
     /// Propagates [`MemoryError`] from the underlying backend.
-    pub async fn set(
-        &self,
-        key: impl Into<String>,
-        entry: MemoryEntry,
-    ) -> Result<(), MemoryError> {
+    pub async fn set(&self, key: impl Into<String>, entry: MemoryEntry) -> Result<(), MemoryError> {
         self.backend.write(self.make_key(&key.into()), entry).await
     }
 
@@ -111,7 +109,9 @@ mod tests {
     async fn two_runs_have_isolated_namespaces() {
         let m1 = WorkingMemory::new(RunId::new());
         let m2 = WorkingMemory::new(RunId::new());
-        m1.set("shared_key", MemoryEntry::new("run1_value")).await.unwrap();
+        m1.set("shared_key", MemoryEntry::new("run1_value"))
+            .await
+            .unwrap();
         assert!(m2.get("shared_key").await.unwrap().is_none());
     }
 

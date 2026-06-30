@@ -53,11 +53,7 @@ impl KaineticRuntime {
     /// @param input       - String input for the agent.
     /// @returns Promise that resolves to the agent's string output.
     #[napi]
-    pub async fn run(
-        &self,
-        agent_handle: &AgentHandle,
-        input: String,
-    ) -> napi::Result<String> {
+    pub async fn run(&self, agent_handle: &AgentHandle, input: String) -> napi::Result<String> {
         let inner = Arc::clone(&self.inner);
         let agent_arc = Arc::clone(&agent_handle.inner);
         inner

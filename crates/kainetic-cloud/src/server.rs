@@ -36,7 +36,6 @@ use crate::{
 /// | `POST` | `/v1/teams/:id/api-keys` | Generate API key |
 /// | `GET`  | `/v1/audit` | Audit log (admin only) |
 /// | `GET`  | `/healthz` | Health check |
-#[must_use]
 pub fn build_router(state: AppState) -> Router {
     let api = Router::new()
         // One-time bootstrap (only works when no users exist yet)
@@ -44,7 +43,10 @@ pub fn build_router(state: AppState) -> Router {
         // Auth
         .route("/auth/token", post(token::post_token))
         // Agent registry
-        .route("/agents", get(agents::list_agents).post(agents::create_agent))
+        .route(
+            "/agents",
+            get(agents::list_agents).post(agents::create_agent),
+        )
         .route("/agents/:id", get(agents::get_agent))
         // Runs
         .route("/runs", get(runs::list_runs).post(runs::create_run))
@@ -92,10 +94,7 @@ mod tests {
     fn mock_state() -> AppState {
         // Build a minimal AppState without a real DB for unit testing.
         // Routes that touch the DB will panic; only `/healthz` is tested here.
-        use sqlx::postgres::PgPoolOptions;
-
-        // We can't easily build a PgPool without a running DB in a unit test,
-        // so we use a lazy pool that never connects.
+        // We use a lazy pool that never connects.
         let pool = sqlx::PgPool::connect_lazy("postgres://localhost/kainetic_cloud_test")
             .expect("lazy pool creation never fails");
 
@@ -107,7 +106,12 @@ mod tests {
     async fn healthz_returns_ok() {
         let app = build_router(mock_state());
         let resp = app
-            .oneshot(Request::builder().uri("/healthz").body(Body::empty()).unwrap())
+            .oneshot(
+                Request::builder()
+                    .uri("/healthz")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
             .await
             .unwrap();
         assert_eq!(resp.status(), StatusCode::OK);

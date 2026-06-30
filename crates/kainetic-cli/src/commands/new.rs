@@ -75,9 +75,7 @@ fn success(kind: &str, name: &str, path: &Path) {
         style(path.display()).dim()
     );
     println!();
-    println!(
-        "  Add `pub mod {name};` to your `src/{kind}s/mod.rs` to include it."
-    );
+    println!("  Add `pub mod {name};` to your `src/{kind}s/mod.rs` to include it.");
 }
 
 // ── Templates ──────────────────────────────────────────────────────────────

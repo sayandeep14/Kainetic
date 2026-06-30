@@ -6,7 +6,7 @@
 //!
 //! # Quick Start
 //!
-//! ```rust,no_run
+//! ```text
 //! // Coming in Part 4 — once KaineticRuntime is implemented.
 //! ```
 #![deny(clippy::all, clippy::pedantic, missing_docs, unsafe_code)]

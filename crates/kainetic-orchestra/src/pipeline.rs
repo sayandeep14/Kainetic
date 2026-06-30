@@ -86,8 +86,8 @@ impl Pipeline {
         ctx: AgentContext,
     ) -> Result<Value, PipelineError> {
         let mut current_node = self.entry.clone();
-        let mut current_input = serde_json::to_value(input)
-            .map_err(|e| PipelineError::Serialization(e.to_string()))?;
+        let mut current_input =
+            serde_json::to_value(input).map_err(|e| PipelineError::Serialization(e.to_string()))?;
 
         for iteration in 0..self.max_iterations {
             tracing::debug!(iteration, node = %current_node, "pipeline step");
@@ -340,7 +340,10 @@ mod tests {
 
     #[async_trait]
     impl ModelProvider for MockProvider {
-        async fn complete(&self, _: CompletionRequest) -> Result<CompletionResponse, ProviderError> {
+        async fn complete(
+            &self,
+            _: CompletionRequest,
+        ) -> Result<CompletionResponse, ProviderError> {
             Err(ProviderError::AuthFailed)
         }
         async fn stream(
@@ -349,9 +352,15 @@ mod tests {
         ) -> Result<BoxStream<Result<CompletionChunk, ProviderError>>, ProviderError> {
             Err(ProviderError::AuthFailed)
         }
-        fn cost_usd(&self, _: &TokenUsage, _: &str) -> f64 { 0.0 }
-        fn name(&self) -> &'static str { "mock" }
-        fn default_model(&self) -> &'static str { "mock-model" }
+        fn cost_usd(&self, _: &TokenUsage, _: &str) -> f64 {
+            0.0
+        }
+        fn name(&self) -> &'static str {
+            "mock"
+        }
+        fn default_model(&self) -> &'static str {
+            "mock-model"
+        }
     }
 
     fn test_ctx() -> AgentContext {
@@ -382,9 +391,15 @@ mod tests {
         type Output = String;
         type Error = AgentError;
 
-        fn name(&self) -> &'static str { "echo" }
-        fn description(&self) -> &'static str { "Returns preset strings." }
-        fn config(&self) -> &AgentConfig { &self.config }
+        fn name(&self) -> &'static str {
+            "echo"
+        }
+        fn description(&self) -> &'static str {
+            "Returns preset strings."
+        }
+        fn config(&self) -> &AgentConfig {
+            &self.config
+        }
 
         fn run(&self, _input: String, _ctx: AgentContext) -> AgentFuture<'_, String, AgentError> {
             let response = self
@@ -440,9 +455,6 @@ mod tests {
         use std::sync::atomic::{AtomicU32, Ordering};
         use std::sync::Arc;
 
-        let counter = Arc::new(AtomicU32::new(0));
-        let c = Arc::clone(&counter);
-
         struct CountAgent {
             config: AgentConfig,
             counter: Arc<AtomicU32>,
@@ -453,9 +465,15 @@ mod tests {
             type Output = String;
             type Error = AgentError;
 
-            fn name(&self) -> &'static str { "count" }
-            fn description(&self) -> &'static str { "Counts." }
-            fn config(&self) -> &AgentConfig { &self.config }
+            fn name(&self) -> &'static str {
+                "count"
+            }
+            fn description(&self) -> &'static str {
+                "Counts."
+            }
+            fn config(&self) -> &AgentConfig {
+                &self.config
+            }
 
             fn run(&self, _: String, _: AgentContext) -> AgentFuture<'_, String, AgentError> {
                 let n = self.counter.fetch_add(1, Ordering::Relaxed) + 1;
@@ -463,11 +481,24 @@ mod tests {
             }
         }
 
+        let counter = Arc::new(AtomicU32::new(0));
+        let c = Arc::clone(&counter);
+
         let pipeline = Pipeline::builder()
-            .agent("loop_node", CountAgent { config: AgentConfig::builder().build(), counter: c })
+            .agent(
+                "loop_node",
+                CountAgent {
+                    config: AgentConfig::builder().build(),
+                    counter: c,
+                },
+            )
             .conditional_edge("loop_node", move |out| {
                 let n: u32 = out.as_str().unwrap().parse().unwrap();
-                if n >= 3 { Ok(DONE.to_owned()) } else { Ok("loop_node".to_owned()) }
+                if n >= 3 {
+                    Ok(DONE.to_owned())
+                } else {
+                    Ok("loop_node".to_owned())
+                }
             })
             .build()
             .unwrap();

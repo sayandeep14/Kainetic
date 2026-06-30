@@ -1,4 +1,4 @@
-//! [`CodeExecutorTool`] — executes code snippets in isolated subprocesses.
+//! `CodeExecutorTool` — executes code snippets in isolated subprocesses.
 //!
 //! Supports Python 3, Node.js, and Bash.  Each execution spawns a fresh
 //! subprocess with a configurable CPU-time budget.
@@ -106,8 +106,7 @@ mod inner {
                 let params: Input = serde_json::from_value(input)
                     .map_err(|e| ToolError::InvalidInput(e.to_string()))?;
 
-                let timeout =
-                    Duration::from_secs(params.timeout_secs.unwrap_or(self.timeout_secs));
+                let timeout = Duration::from_secs(params.timeout_secs.unwrap_or(self.timeout_secs));
 
                 // Write code to a temp file.
                 let ext = match params.language {

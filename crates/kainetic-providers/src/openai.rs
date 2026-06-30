@@ -5,7 +5,7 @@ use std::time::Duration;
 use async_trait::async_trait;
 use eventsource_stream::Eventsource;
 use futures::StreamExt;
-use kainetic_schema::{Message, MessageContent, MessageRole, ToolDescriptor, TokenUsage};
+use kainetic_schema::{Message, MessageContent, MessageRole, TokenUsage, ToolDescriptor};
 use serde::{Deserialize, Serialize};
 use tracing::warn;
 
@@ -265,7 +265,10 @@ impl OpenAiProvider {
         Err(map_error_response(response).await)
     }
 
-    async fn do_complete(&self, request: &CompletionRequest) -> Result<CompletionResponse, ProviderError> {
+    async fn do_complete(
+        &self,
+        request: &CompletionRequest,
+    ) -> Result<CompletionResponse, ProviderError> {
         let response = self.send_request(request, false).await?;
         let body: OpenAiResponse = response
             .json()
@@ -287,8 +290,7 @@ impl ModelProvider for OpenAiProvider {
         for attempt in 0..MAX_RETRIES {
             match self.do_complete(&request).await {
                 Err(ProviderError::RateLimited { retry_after }) => {
-                    let delay =
-                        retry_after.unwrap_or_else(|| Duration::from_secs(1u64 << attempt));
+                    let delay = retry_after.unwrap_or_else(|| Duration::from_secs(1u64 << attempt));
                     warn!(attempt, ?delay, "openai: rate limited, retrying");
                     tokio::time::sleep(delay + jitter()).await;
                 }
@@ -561,7 +563,10 @@ async fn map_error_response(response: reqwest::Response) -> ProviderError {
         401 => ProviderError::AuthFailed,
         429 => ProviderError::RateLimited { retry_after },
         404 => ProviderError::ModelNotFound(body),
-        _ => ProviderError::ApiError { status, message: body },
+        _ => ProviderError::ApiError {
+            status,
+            message: body,
+        },
     }
 }
 
@@ -667,7 +672,10 @@ mod tests {
             .await;
 
         let response = provider(&server.uri())
-            .complete(CompletionRequest::new("gpt-4o", vec![Message::user("Search")]))
+            .complete(CompletionRequest::new(
+                "gpt-4o",
+                vec![Message::user("Search")],
+            ))
             .await
             .unwrap();
 
@@ -697,7 +705,10 @@ mod tests {
             .await;
 
         let response = provider(&server.uri())
-            .complete(CompletionRequest::new("gpt-4o", vec![Message::user("Hello")]))
+            .complete(CompletionRequest::new(
+                "gpt-4o",
+                vec![Message::user("Hello")],
+            ))
             .await
             .unwrap();
 
@@ -713,7 +724,10 @@ mod tests {
             .await;
 
         let err = provider(&server.uri())
-            .complete(CompletionRequest::new("gpt-4o", vec![Message::user("Hello")]))
+            .complete(CompletionRequest::new(
+                "gpt-4o",
+                vec![Message::user("Hello")],
+            ))
             .await
             .unwrap_err();
 
@@ -741,7 +755,10 @@ mod tests {
             .await;
 
         let mut stream = provider(&server.uri())
-            .stream(CompletionRequest::new("gpt-4o", vec![Message::user("Hello")]))
+            .stream(CompletionRequest::new(
+                "gpt-4o",
+                vec![Message::user("Hello")],
+            ))
             .await
             .unwrap();
 
@@ -778,7 +795,10 @@ mod tests {
     async fn integration_complete() {
         let provider = match OpenAiProvider::from_env() {
             Ok(p) => p,
-            Err(e) => { eprintln!("OPENAI_API_KEY not set — skipping ({e})"); return; }
+            Err(e) => {
+                eprintln!("OPENAI_API_KEY not set — skipping ({e})");
+                return;
+            }
         };
         let request = CompletionRequest::new(
             "gpt-4o-mini",
@@ -787,7 +807,10 @@ mod tests {
         .with_max_tokens(10);
         let response = match provider.complete(request).await {
             Ok(r) => r,
-            Err(e) => { eprintln!("OpenAI API unavailable — skipping ({e})"); return; }
+            Err(e) => {
+                eprintln!("OpenAI API unavailable — skipping ({e})");
+                return;
+            }
         };
         assert_eq!(response.stop_reason, StopReason::EndTurn);
         assert!(response.text().is_some());

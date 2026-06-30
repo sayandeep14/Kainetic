@@ -1,9 +1,9 @@
 //! Memory backends for Kainetic agents.
 //!
 //! Defines the [`MemoryBackend`] trait and concrete implementations:
-//! [`InMemoryBackend`] (ephemeral), [`SqliteBackend`] (persistent episodic,
-//! feature `sqlite`), [`RedisBackend`] (distributed episodic, feature
-//! `redis`), and [`UsearchBackend`] (in-process vector search, feature
+//! [`InMemoryBackend`] (ephemeral), `SqliteBackend` (persistent episodic,
+//! feature `sqlite`), `RedisBackend` (distributed episodic, feature
+//! `redis`), and `UsearchBackend` (in-process vector search, feature
 //! `usearch`). Also provides [`WorkingMemory`] and [`EpisodicMemory`]
 //! wrappers with automatic context window management.
 //!
@@ -12,9 +12,9 @@
 //! | Need | Backend |
 //! |------|---------|
 //! | Tests / single-process | [`InMemoryBackend`] |
-//! | Cross-run persistence (local) | [`SqliteBackend`] |
-//! | Distributed agents | [`RedisBackend`] |
-//! | Semantic / RAG search | [`UsearchBackend`] |
+//! | Cross-run persistence (local) | `SqliteBackend` (feature `sqlite`) |
+//! | Distributed agents | `RedisBackend` (feature `redis`) |
+//! | Semantic / RAG search | `UsearchBackend` (feature `usearch`) |
 #![deny(clippy::all, clippy::pedantic, missing_docs, unsafe_code)]
 
 mod backend;

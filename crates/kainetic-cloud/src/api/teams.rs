@@ -51,26 +51,23 @@ pub async fn create_team(
         .await
         .map_err(|e| CloudError::Database(e.to_string()))?;
 
-    let team_row = sqlx::query(
-        "INSERT INTO kc_teams (name) VALUES ($1) RETURNING id, name, created_at",
-    )
-    .bind(body.name.trim())
-    .fetch_one(&mut *tx)
-    .await
-    .map_err(|e| CloudError::Database(e.to_string()))?;
+    let team_row =
+        sqlx::query("INSERT INTO kc_teams (name) VALUES ($1) RETURNING id, name, created_at")
+            .bind(body.name.trim())
+            .fetch_one(&mut *tx)
+            .await
+            .map_err(|e| CloudError::Database(e.to_string()))?;
 
     let team_id: Uuid = team_row
         .try_get("id")
         .map_err(|e| CloudError::Database(e.to_string()))?;
 
-    sqlx::query(
-        "INSERT INTO kc_team_members (team_id, user_id, role) VALUES ($1, $2, 'admin')",
-    )
-    .bind(team_id)
-    .bind(user_id)
-    .execute(&mut *tx)
-    .await
-    .map_err(|e| CloudError::Database(e.to_string()))?;
+    sqlx::query("INSERT INTO kc_team_members (team_id, user_id, role) VALUES ($1, $2, 'admin')")
+        .bind(team_id)
+        .bind(user_id)
+        .execute(&mut *tx)
+        .await
+        .map_err(|e| CloudError::Database(e.to_string()))?;
 
     tx.commit()
         .await

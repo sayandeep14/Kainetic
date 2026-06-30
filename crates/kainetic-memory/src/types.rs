@@ -139,9 +139,7 @@ pub struct SemanticQuery {
     /// Pre-computed query embedding.
     ///
     /// Must be supplied when calling backends that do not generate embeddings
-    /// themselves (e.g. [`UsearchBackend`]).
-    ///
-    /// [`UsearchBackend`]: crate::UsearchBackend
+    /// themselves (e.g. `UsearchBackend`).
     pub embedding: Option<Vec<f32>>,
 }
 

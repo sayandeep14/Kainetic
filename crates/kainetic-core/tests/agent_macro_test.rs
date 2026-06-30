@@ -6,8 +6,8 @@ use std::sync::Mutex;
 use async_trait::async_trait;
 use kainetic_core::{Agent, AgentConfig, AgentContext, AgentError, KaineticRuntime};
 use kainetic_providers::{
-    BoxStream, CompletionChunk, CompletionRequest, CompletionResponse, ModelProvider, ProviderError,
-    StopReason,
+    BoxStream, CompletionChunk, CompletionRequest, CompletionResponse, ModelProvider,
+    ProviderError, StopReason,
 };
 use kainetic_schema::{MessageContent, TokenUsage};
 

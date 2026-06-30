@@ -52,8 +52,7 @@ impl Tool for CurrentDatetimeTool {
                 iso8601: now.to_rfc3339(),
                 unix_timestamp: now.timestamp(),
             };
-            serde_json::to_value(output)
-                .map_err(|e| ToolError::ExecutionFailed(e.to_string()))
+            serde_json::to_value(output).map_err(|e| ToolError::ExecutionFailed(e.to_string()))
         })
     }
 }
@@ -70,12 +69,11 @@ mod tests {
     async fn returns_iso8601_string() {
         let tool = CurrentDatetimeTool;
         let ctx = ToolContext::new(RunId::new(), CancellationToken::new());
-        let result = tool
-            .call(serde_json::json!({}), ctx)
-            .await
-            .unwrap();
+        let result = tool.call(serde_json::json!({}), ctx).await.unwrap();
 
-        let iso = result["iso8601"].as_str().expect("iso8601 field is a string");
+        let iso = result["iso8601"]
+            .as_str()
+            .expect("iso8601 field is a string");
         // RFC 3339 contains a 'T' separator and a '+' or 'Z' timezone
         assert!(iso.contains('T'), "expected ISO 8601 format, got: {iso}");
     }
@@ -84,13 +82,15 @@ mod tests {
     async fn returns_positive_unix_timestamp() {
         let tool = CurrentDatetimeTool;
         let ctx = ToolContext::new(RunId::new(), CancellationToken::new());
-        let result = tool
-            .call(serde_json::json!({}), ctx)
-            .await
-            .unwrap();
+        let result = tool.call(serde_json::json!({}), ctx).await.unwrap();
 
-        let ts = result["unix_timestamp"].as_i64().expect("unix_timestamp is i64");
-        assert!(ts > 1_000_000_000, "expected unix timestamp > 2001, got {ts}");
+        let ts = result["unix_timestamp"]
+            .as_i64()
+            .expect("unix_timestamp is i64");
+        assert!(
+            ts > 1_000_000_000,
+            "expected unix timestamp > 2001, got {ts}"
+        );
     }
 
     #[test]

@@ -68,8 +68,7 @@ impl Tool for JsTool {
                 .await
                 .map_err(|_| ToolError::ExecutionFailed("JS tool channel dropped".into()))?;
 
-            serde_json::from_str(&json_str)
-                .map_err(|e| ToolError::ExecutionFailed(e.to_string()))
+            serde_json::from_str(&json_str).map_err(|e| ToolError::ExecutionFailed(e.to_string()))
         })
     }
 }

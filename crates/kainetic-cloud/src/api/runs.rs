@@ -33,21 +33,51 @@ pub struct RunResponse {
 
 fn row_to_run(row: &sqlx::postgres::PgRow) -> Result<RunResponse, CloudError> {
     Ok(RunResponse {
-        id: row.try_get("id").map_err(|e| CloudError::Database(e.to_string()))?,
-        team_id: row.try_get("team_id").map_err(|e| CloudError::Database(e.to_string()))?,
-        agent_id: row.try_get("agent_id").map_err(|e| CloudError::Database(e.to_string()))?,
-        agent_name: row.try_get("agent_name").map_err(|e| CloudError::Database(e.to_string()))?,
-        status: row.try_get("status").map_err(|e| CloudError::Database(e.to_string()))?,
-        input_preview: row.try_get("input_preview").map_err(|e| CloudError::Database(e.to_string()))?,
-        output_preview: row.try_get("output_preview").map_err(|e| CloudError::Database(e.to_string()))?,
-        error_message: row.try_get("error_message").map_err(|e| CloudError::Database(e.to_string()))?,
-        prompt_tokens: row.try_get("prompt_tokens").map_err(|e| CloudError::Database(e.to_string()))?,
-        completion_tokens: row.try_get("completion_tokens").map_err(|e| CloudError::Database(e.to_string()))?,
-        total_cost_usd: row.try_get("total_cost_usd").map_err(|e| CloudError::Database(e.to_string()))?,
-        duration_ms: row.try_get("duration_ms").map_err(|e| CloudError::Database(e.to_string()))?,
-        started_at: row.try_get("started_at").map_err(|e| CloudError::Database(e.to_string()))?,
-        completed_at: row.try_get("completed_at").map_err(|e| CloudError::Database(e.to_string()))?,
-        metadata: row.try_get("metadata").map_err(|e| CloudError::Database(e.to_string()))?,
+        id: row
+            .try_get("id")
+            .map_err(|e| CloudError::Database(e.to_string()))?,
+        team_id: row
+            .try_get("team_id")
+            .map_err(|e| CloudError::Database(e.to_string()))?,
+        agent_id: row
+            .try_get("agent_id")
+            .map_err(|e| CloudError::Database(e.to_string()))?,
+        agent_name: row
+            .try_get("agent_name")
+            .map_err(|e| CloudError::Database(e.to_string()))?,
+        status: row
+            .try_get("status")
+            .map_err(|e| CloudError::Database(e.to_string()))?,
+        input_preview: row
+            .try_get("input_preview")
+            .map_err(|e| CloudError::Database(e.to_string()))?,
+        output_preview: row
+            .try_get("output_preview")
+            .map_err(|e| CloudError::Database(e.to_string()))?,
+        error_message: row
+            .try_get("error_message")
+            .map_err(|e| CloudError::Database(e.to_string()))?,
+        prompt_tokens: row
+            .try_get("prompt_tokens")
+            .map_err(|e| CloudError::Database(e.to_string()))?,
+        completion_tokens: row
+            .try_get("completion_tokens")
+            .map_err(|e| CloudError::Database(e.to_string()))?,
+        total_cost_usd: row
+            .try_get("total_cost_usd")
+            .map_err(|e| CloudError::Database(e.to_string()))?,
+        duration_ms: row
+            .try_get("duration_ms")
+            .map_err(|e| CloudError::Database(e.to_string()))?,
+        started_at: row
+            .try_get("started_at")
+            .map_err(|e| CloudError::Database(e.to_string()))?,
+        completed_at: row
+            .try_get("completed_at")
+            .map_err(|e| CloudError::Database(e.to_string()))?,
+        metadata: row
+            .try_get("metadata")
+            .map_err(|e| CloudError::Database(e.to_string()))?,
     })
 }
 
@@ -92,10 +122,7 @@ pub async fn list_runs(
             " AND status = $2 ORDER BY started_at DESC LIMIT $3 OFFSET $4",
             vec![s.clone()],
         ),
-        (None, None) => (
-            " ORDER BY started_at DESC LIMIT $2 OFFSET $3",
-            vec![],
-        ),
+        (None, None) => (" ORDER BY started_at DESC LIMIT $2 OFFSET $3", vec![]),
     };
 
     let sql = format!("SELECT {RUN_COLS} FROM kc_runs WHERE team_id = $1{where_extra}");
@@ -111,7 +138,10 @@ pub async fn list_runs(
         .await
         .map_err(|e| CloudError::Database(e.to_string()))?;
 
-    rows.iter().map(row_to_run).collect::<Result<Vec<_>, _>>().map(Json)
+    rows.iter()
+        .map(row_to_run)
+        .collect::<Result<Vec<_>, _>>()
+        .map(Json)
 }
 
 /// Request body for submitting a new run record.
@@ -154,14 +184,12 @@ pub async fn create_run(
 
     let metadata = body.metadata.unwrap_or_else(|| serde_json::json!({}));
 
-    let row = sqlx::query(
-        &format!(
-            "INSERT INTO kc_runs \
+    let row = sqlx::query(&format!(
+        "INSERT INTO kc_runs \
              (id, team_id, agent_id, agent_name, status, input_preview, started_at, metadata) \
              VALUES ($1, $2, $3, $4, $5, $6, $7, $8) \
              RETURNING {RUN_COLS}"
-        ),
-    )
+    ))
     .bind(body.id)
     .bind(team_id)
     .bind(body.agent_id)

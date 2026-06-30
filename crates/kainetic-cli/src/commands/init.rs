@@ -47,11 +47,7 @@ pub async fn run(args: InitArgs) -> Result<(), CliError> {
     println!("{}", style("Project created!").green().bold());
     println!();
     println!("  Next steps:");
-    println!(
-        "    {} cd {}",
-        style("1.").dim(),
-        style(&args.name).cyan()
-    );
+    println!("    {} cd {}", style("1.").dim(), style(&args.name).cyan());
     println!(
         "    {} export ANTHROPIC_API_KEY=sk-ant-...",
         style("2.").dim()

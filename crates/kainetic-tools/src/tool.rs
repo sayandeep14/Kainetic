@@ -1,9 +1,6 @@
 //! The `Tool` trait and the `ToolFuture` type alias.
 
-use std::{
-    future::Future,
-    pin::Pin,
-};
+use std::{future::Future, pin::Pin};
 
 use kainetic_schema::{RootSchema, ToolDescriptor};
 

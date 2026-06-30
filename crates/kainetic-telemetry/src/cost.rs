@@ -107,19 +107,13 @@ impl CostAccumulator {
     /// Removes the accumulator entry for a completed run and returns its total cost.
     #[must_use]
     pub fn finish_run(&self, run_id: RunId) -> f64 {
-        self.inner
-            .per_run
-            .remove(&run_id)
-            .map_or(0.0, |(_, v)| v)
+        self.inner.per_run.remove(&run_id).map_or(0.0, |(_, v)| v)
     }
 
     /// Returns the current accumulated cost for a run, or 0 if not tracked.
     #[must_use]
     pub fn run_cost(&self, run_id: RunId) -> f64 {
-        self.inner
-            .per_run
-            .get(&run_id)
-            .map_or(0.0, |v| *v)
+        self.inner.per_run.get(&run_id).map_or(0.0, |v| *v)
     }
 
     /// Returns the total spend accumulated in the current rolling-hour window.

@@ -22,8 +22,8 @@ use async_trait::async_trait;
 use chrono::{TimeZone, Utc};
 use qdrant_client::{
     qdrant::{
-        CreateCollectionBuilder, DeletePointsBuilder, Distance, GetPointsBuilder,
-        PointStruct, SearchPointsBuilder, UpsertPointsBuilder, VectorParamsBuilder,
+        CreateCollectionBuilder, DeletePointsBuilder, Distance, GetPointsBuilder, PointStruct,
+        SearchPointsBuilder, UpsertPointsBuilder, VectorParamsBuilder,
     },
     Qdrant,
 };
@@ -67,17 +67,13 @@ impl QdrantBackend {
             .await
             .map_err(|e| MemoryError::Backend(e.to_string()))?;
 
-        let exists = collections
-            .collections
-            .iter()
-            .any(|c| c.name == collection);
+        let exists = collections.collections.iter().any(|c| c.name == collection);
 
         if !exists {
             client
                 .create_collection(
-                    CreateCollectionBuilder::new(&collection).vectors_config(
-                        VectorParamsBuilder::new(vector_dim, Distance::Cosine),
-                    ),
+                    CreateCollectionBuilder::new(&collection)
+                        .vectors_config(VectorParamsBuilder::new(vector_dim, Distance::Cosine)),
                 )
                 .await
                 .map_err(|e| MemoryError::Backend(e.to_string()))?;
@@ -108,21 +104,45 @@ fn fnv1a(data: &[u8]) -> u64 {
 
 // ─── Payload helpers ───────────────────────────────────────────────────────────
 
-fn entry_to_payload(key: &MemoryKey, entry: &MemoryEntry) -> HashMap<String, qdrant_client::qdrant::Value> {
+fn entry_to_payload(
+    key: &MemoryKey,
+    entry: &MemoryEntry,
+) -> HashMap<String, qdrant_client::qdrant::Value> {
     use qdrant_client::qdrant::value::Kind;
     use qdrant_client::qdrant::Value as QVal;
 
-    let metadata_json =
-        serde_json::to_string(&entry.metadata).unwrap_or_else(|_| "{}".to_string());
+    let metadata_json = serde_json::to_string(&entry.metadata).unwrap_or_else(|_| "{}".to_string());
 
     let mut map = HashMap::new();
-    map.insert("namespace".to_string(), QVal { kind: Some(Kind::StringValue(key.namespace.clone())) });
-    map.insert("key".to_string(), QVal { kind: Some(Kind::StringValue(key.key.clone())) });
-    map.insert("content".to_string(), QVal { kind: Some(Kind::StringValue(entry.content.clone())) });
-    map.insert("metadata_json".to_string(), QVal { kind: Some(Kind::StringValue(metadata_json)) });
+    map.insert(
+        "namespace".to_string(),
+        QVal {
+            kind: Some(Kind::StringValue(key.namespace.clone())),
+        },
+    );
+    map.insert(
+        "key".to_string(),
+        QVal {
+            kind: Some(Kind::StringValue(key.key.clone())),
+        },
+    );
+    map.insert(
+        "content".to_string(),
+        QVal {
+            kind: Some(Kind::StringValue(entry.content.clone())),
+        },
+    );
+    map.insert(
+        "metadata_json".to_string(),
+        QVal {
+            kind: Some(Kind::StringValue(metadata_json)),
+        },
+    );
     map.insert(
         "created_at_ms".to_string(),
-        QVal { kind: Some(Kind::IntegerValue(entry.created_at.timestamp_millis())) },
+        QVal {
+            kind: Some(Kind::IntegerValue(entry.created_at.timestamp_millis())),
+        },
     );
     map
 }
@@ -153,12 +173,15 @@ fn payload_to_entry(
     let created_at_ms = payload
         .get("created_at_ms")
         .and_then(|v| {
-            if let Some(Kind::IntegerValue(n)) = &v.kind { Some(*n) } else { None }
+            if let Some(Kind::IntegerValue(n)) = &v.kind {
+                Some(*n)
+            } else {
+                None
+            }
         })
         .unwrap_or(0);
 
-    let metadata: HashMap<String, Value> =
-        serde_json::from_str(&metadata_json).unwrap_or_default();
+    let metadata: HashMap<String, Value> = serde_json::from_str(&metadata_json).unwrap_or_default();
 
     let created_at = Utc
         .timestamp_millis_opt(created_at_ms)
@@ -201,7 +224,9 @@ impl MemoryBackend for QdrantBackend {
 
         #[allow(deprecated)]
         let embedding = point.vectors.and_then(|v| {
-            if let Some(qdrant_client::qdrant::vectors_output::VectorsOptions::Vector(vec)) = v.vectors_options {
+            if let Some(qdrant_client::qdrant::vectors_output::VectorsOptions::Vector(vec)) =
+                v.vectors_options
+            {
                 Some(vec.data)
             } else {
                 None
@@ -257,10 +282,14 @@ impl MemoryBackend for QdrantBackend {
         let response = self
             .client
             .search_points(
-                SearchPointsBuilder::new(&self.collection, query_emb.clone(), u64::from(query.top_k))
-                    .with_payload(true)
-                    .with_vectors(true)
-                    .score_threshold(query.threshold),
+                SearchPointsBuilder::new(
+                    &self.collection,
+                    query_emb.clone(),
+                    u64::from(query.top_k),
+                )
+                .with_payload(true)
+                .with_vectors(true)
+                .score_threshold(query.threshold),
             )
             .await
             .map_err(|e| MemoryError::Backend(e.to_string()))?;
@@ -269,7 +298,9 @@ impl MemoryBackend for QdrantBackend {
         for scored in response.result {
             #[allow(deprecated)]
             let embedding = scored.vectors.and_then(|v| {
-                if let Some(qdrant_client::qdrant::vectors_output::VectorsOptions::Vector(vec)) = v.vectors_options {
+                if let Some(qdrant_client::qdrant::vectors_output::VectorsOptions::Vector(vec)) =
+                    v.vectors_options
+                {
                     Some(vec.data)
                 } else {
                     None
@@ -327,8 +358,8 @@ mod tests {
     #[cfg(feature = "integration")]
     #[tokio::test]
     async fn integration_write_read_search_delete() {
-        let url = std::env::var("QDRANT_URL")
-            .unwrap_or_else(|_| "http://localhost:6334".to_string());
+        let url =
+            std::env::var("QDRANT_URL").unwrap_or_else(|_| "http://localhost:6334".to_string());
         let backend = match QdrantBackend::new(&url, "kainetic_test", 3).await {
             Ok(b) => b,
             Err(e) => {
