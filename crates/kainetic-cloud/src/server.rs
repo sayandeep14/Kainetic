@@ -92,10 +92,7 @@ mod tests {
     fn mock_state() -> AppState {
         // Build a minimal AppState without a real DB for unit testing.
         // Routes that touch the DB will panic; only `/healthz` is tested here.
-        use sqlx::postgres::PgPoolOptions;
-
-        // We can't easily build a PgPool without a running DB in a unit test,
-        // so we use a lazy pool that never connects.
+        // We use a lazy pool that never connects.
         let pool = sqlx::PgPool::connect_lazy("postgres://localhost/kainetic_cloud_test")
             .expect("lazy pool creation never fails");
 
