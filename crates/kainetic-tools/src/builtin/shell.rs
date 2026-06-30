@@ -1,4 +1,4 @@
-//! [`ShellTool`] — executes shell commands in a subprocess.
+//! `ShellTool` — executes shell commands in a subprocess.
 //!
 //! **Security note:** This tool runs arbitrary commands with the permissions
 //! of the host process.  Only enable it in fully-trusted, sandboxed

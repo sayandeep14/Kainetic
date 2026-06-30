@@ -10,10 +10,9 @@ use crate::{backend::MemoryBackend, MemoryEntry, MemoryError, MemoryKey, Semanti
 /// All data is lost when the backend is dropped. Suitable for tests and
 /// single-process agents that don't need cross-run persistence.
 ///
-/// [`search`] is not supported — use [`UsearchBackend`] for semantic search.
+/// [`search`] is not supported — use `UsearchBackend` (feature `usearch`) for semantic search.
 ///
 /// [`search`]: InMemoryBackend::search
-/// [`UsearchBackend`]: crate::UsearchBackend
 #[derive(Default)]
 pub struct InMemoryBackend {
     store: DashMap<String, MemoryEntry>,

@@ -7,11 +7,8 @@ use serde::{Deserialize, Serialize};
 
 /// Token counts for a single model call.
 ///
-/// Returned by every [`ModelProvider`] completion and accumulated by the
-/// [`CostAccumulator`] in `kainetic-telemetry`.
-///
-/// [`ModelProvider`]: crate::ModelProvider
-/// [`CostAccumulator`]: https://docs.rs/kainetic-telemetry
+/// Returned by every `ModelProvider` completion and accumulated by the
+/// `CostAccumulator` in `kainetic-telemetry`.
 // `_tokens` suffix on all three fields is intentional — it mirrors the names
 // used by every major provider API and makes the meaning unambiguous at call sites.
 #[allow(clippy::struct_field_names)]
@@ -62,11 +59,9 @@ impl AddAssign for TokenUsage {
 
 /// Estimated monetary cost for a model call or accumulated run.
 ///
-/// Costs are computed by each [`ModelProvider`] implementation using
+/// Costs are computed by each `ModelProvider` implementation using
 /// hard-coded (but updateable) per-token prices. Always treat this as
 /// an estimate — provider invoices are the authoritative source.
-///
-/// [`ModelProvider`]: crate::ModelProvider
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
 pub struct CostEstimate {
     /// Estimated cost in US dollars.

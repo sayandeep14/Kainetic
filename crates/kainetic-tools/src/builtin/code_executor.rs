@@ -1,4 +1,4 @@
-//! [`CodeExecutorTool`] — executes code snippets in isolated subprocesses.
+//! `CodeExecutorTool` — executes code snippets in isolated subprocesses.
 //!
 //! Supports Python 3, Node.js, and Bash.  Each execution spawns a fresh
 //! subprocess with a configurable CPU-time budget.
