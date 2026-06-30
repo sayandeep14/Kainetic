@@ -104,8 +104,8 @@ mod tests {
     #[test]
     fn from_env_uses_defaults() {
         // Ensure env vars from CI don't bleed in.
-        let _ = std::env::remove_var("PORT");
-        let _ = std::env::remove_var("DATABASE_URL");
+        std::env::remove_var("PORT");
+        std::env::remove_var("DATABASE_URL");
         let cfg = CloudConfig::from_env();
         assert_eq!(cfg.port, 8080);
         assert!(cfg.database_url.contains("kainetic_cloud"));
@@ -114,7 +114,7 @@ mod tests {
 
     #[test]
     fn jwt_ttl_default_is_24h() {
-        let _ = std::env::remove_var("JWT_TTL_SECS");
+        std::env::remove_var("JWT_TTL_SECS");
         let cfg = CloudConfig::from_env();
         assert_eq!(cfg.jwt_ttl.as_secs(), 86_400);
     }
