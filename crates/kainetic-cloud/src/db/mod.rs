@@ -15,7 +15,7 @@ use schema::SCHEMA_SQL;
 ///
 /// Returns [`CloudError::Database`] if any statement fails.
 pub async fn migrate(pool: &PgPool) -> Result<(), CloudError> {
-    sqlx::query(SCHEMA_SQL)
+    sqlx::raw_sql(SCHEMA_SQL)
         .execute(pool)
         .await
         .map_err(|e| CloudError::Database(e.to_string()))?;

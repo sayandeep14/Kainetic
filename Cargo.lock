@@ -2089,6 +2089,7 @@ dependencies = [
  "tokio",
  "tracing",
  "usearch",
+ "uuid",
 ]
 
 [[package]]

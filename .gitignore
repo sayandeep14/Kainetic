@@ -62,3 +62,6 @@ docs/book/
 CLAUDE.md
 PLAN.md
 SPEC.md
+
+# Internal Creds
+credentials.creds

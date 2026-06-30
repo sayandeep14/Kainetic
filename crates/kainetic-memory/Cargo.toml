@@ -17,6 +17,9 @@ usearch = ["dep:usearch"]
 pgvector = ["dep:sqlx"]
 # Enable Qdrant vector-database backend.
 qdrant = ["dep:qdrant-client"]
+# Run tests that require live external services (Redis, PostgreSQL+pgvector, Qdrant).
+# Activate with: cargo test --features integration -p kainetic-memory
+integration = ["redis", "pgvector", "qdrant"]
 
 [dependencies]
 kainetic-schema = { workspace = true }
@@ -41,3 +44,4 @@ qdrant-client = { workspace = true, optional = true }
 
 [dev-dependencies]
 tokio = { workspace = true }
+uuid = { workspace = true }

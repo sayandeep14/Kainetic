@@ -35,6 +35,10 @@ pub enum CloudError {
     #[error("forbidden: {0}")]
     Forbidden(String),
 
+    /// The request conflicts with existing state (e.g., resource already exists).
+    #[error("conflict: {0}")]
+    Conflict(String),
+
     /// An internal invariant was violated.
     #[error("internal error: {0}")]
     Internal(String),
@@ -48,6 +52,7 @@ impl CloudError {
             Self::BadRequest(_) => StatusCode::BAD_REQUEST,
             Self::Unauthorized(_) => StatusCode::UNAUTHORIZED,
             Self::Forbidden(_) => StatusCode::FORBIDDEN,
+            Self::Conflict(_) => StatusCode::CONFLICT,
         }
     }
 }

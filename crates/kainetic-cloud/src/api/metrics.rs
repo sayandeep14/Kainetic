@@ -38,7 +38,7 @@ pub async fn get_metrics(
             COUNT(*) FILTER (WHERE status = 'failed')       AS failed_runs,
             COALESCE(SUM(total_cost_usd), 0.0)              AS total_cost_usd,
             COALESCE(AVG(total_cost_usd), 0.0)              AS avg_cost_usd,
-            COALESCE(AVG(duration_ms) FILTER (WHERE status = 'completed'), 0.0) AS avg_duration_ms,
+            COALESCE((AVG(duration_ms) FILTER (WHERE status = 'completed'))::FLOAT8, 0.0) AS avg_duration_ms,
             COALESCE(SUM(prompt_tokens), 0)                 AS total_prompt_tokens,
             COALESCE(SUM(completion_tokens), 0)             AS total_completion_tokens
         FROM kc_runs

@@ -5,13 +5,13 @@ use axum::{
     Router,
 };
 use tower_http::{
-    cors::{Any, CorsLayer},
+    cors::Any,
     request_id::{MakeRequestUuid, PropagateRequestIdLayer, SetRequestIdLayer},
     trace::TraceLayer,
 };
 
 use crate::{
-    api::{agents, audit, metrics, runs, spans, teams, token},
+    api::{agents, audit, metrics, runs, setup, spans, teams, token},
     AppState,
 };
 
@@ -21,6 +21,7 @@ use crate::{
 ///
 /// | Method | Path | Description |
 /// |--------|------|-------------|
+/// | `POST` | `/v1/setup` | One-time bootstrap — create first admin (fails if any user exists) |
 /// | `POST` | `/v1/auth/token` | Exchange API key for JWT |
 /// | `GET`  | `/v1/agents` | List agents |
 /// | `POST` | `/v1/agents` | Register agent |
@@ -38,6 +39,8 @@ use crate::{
 #[must_use]
 pub fn build_router(state: AppState) -> Router {
     let api = Router::new()
+        // One-time bootstrap (only works when no users exist yet)
+        .route("/setup", post(setup::post_setup))
         // Auth
         .route("/auth/token", post(token::post_token))
         // Agent registry

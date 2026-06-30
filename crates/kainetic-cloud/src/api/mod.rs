@@ -6,6 +6,7 @@ pub mod agents;
 pub mod audit;
 pub mod metrics;
 pub mod runs;
+pub mod setup;
 pub mod spans;
 pub mod teams;
 pub mod token;
