@@ -9,6 +9,7 @@ repository.workspace = true
 [lib]
 name = "kainetic"
 crate-type = ["cdylib"]
+doc = false   # avoids name collision with crates/kainetic in cargo doc --workspace
 
 [dependencies]
 kainetic-core = { workspace = true }

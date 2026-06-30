@@ -27,8 +27,13 @@
 //! console.log(result);
 //! ```
 
-// FFI crate — unsafe is required by napi-rs internals.
-#![allow(clippy::used_underscore_binding, clippy::needless_pass_by_value)]
+// FFI crate — napi-rs exports are called from JS, not from Rust, so Rust's
+// dead-code lint cannot see that #[napi] items are used.
+#![allow(
+    clippy::used_underscore_binding,
+    clippy::needless_pass_by_value,
+    dead_code
+)]
 
 mod agent;
 mod provider;
