@@ -5,7 +5,7 @@ use std::time::Duration;
 use async_trait::async_trait;
 use eventsource_stream::Eventsource;
 use futures::StreamExt;
-use kainetic_schema::{Message, MessageContent, MessageRole, ToolDescriptor, TokenUsage};
+use kainetic_schema::{Message, MessageContent, MessageRole, TokenUsage, ToolDescriptor};
 use serde::{Deserialize, Serialize};
 use tracing::warn;
 
@@ -85,8 +85,14 @@ struct AnthropicResponse {
 #[derive(Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 enum AnthropicResponseContent {
-    Text { text: String },
-    ToolUse { id: String, name: String, input: serde_json::Value },
+    Text {
+        text: String,
+    },
+    ToolUse {
+        id: String,
+        name: String,
+        input: serde_json::Value,
+    },
 }
 
 #[derive(Deserialize)]
@@ -207,8 +213,7 @@ impl AnthropicProvider {
     ///
     /// Returns [`ProviderError::AuthFailed`] if `ANTHROPIC_API_KEY` is not set.
     pub fn from_env() -> Result<Self, ProviderError> {
-        let api_key =
-            std::env::var("ANTHROPIC_API_KEY").map_err(|_| ProviderError::AuthFailed)?;
+        let api_key = std::env::var("ANTHROPIC_API_KEY").map_err(|_| ProviderError::AuthFailed)?;
         Ok(Self::new(api_key))
     }
 
@@ -261,7 +266,10 @@ impl AnthropicProvider {
         Err(map_error_response(response).await)
     }
 
-    async fn do_complete(&self, request: &CompletionRequest) -> Result<CompletionResponse, ProviderError> {
+    async fn do_complete(
+        &self,
+        request: &CompletionRequest,
+    ) -> Result<CompletionResponse, ProviderError> {
         let response = self.send_request(request, false).await?;
         let body: AnthropicResponse = response
             .json()
@@ -283,8 +291,7 @@ impl ModelProvider for AnthropicProvider {
         for attempt in 0..MAX_RETRIES {
             match self.do_complete(&request).await {
                 Err(ProviderError::RateLimited { retry_after }) => {
-                    let delay =
-                        retry_after.unwrap_or_else(|| Duration::from_secs(1u64 << attempt));
+                    let delay = retry_after.unwrap_or_else(|| Duration::from_secs(1u64 << attempt));
                     warn!(attempt, ?delay, "anthropic: rate limited, retrying");
                     tokio::time::sleep(delay + jitter()).await;
                 }
@@ -443,7 +450,10 @@ fn parse_sse_event(data: &str) -> Result<Option<CompletionChunk>, ProviderError>
             index,
             delta: AnthropicStreamDelta::InputJsonDelta { partial_json },
         } => Some(CompletionChunk {
-            delta: ChunkDelta::ToolCallDelta { index, partial_json },
+            delta: ChunkDelta::ToolCallDelta {
+                index,
+                partial_json,
+            },
             usage: None,
         }),
         AnthropicStreamEvent::MessageDelta { delta, usage } => Some(CompletionChunk {
@@ -481,7 +491,10 @@ async fn map_error_response(response: reqwest::Response) -> ProviderError {
         401 => ProviderError::AuthFailed,
         429 | 529 => ProviderError::RateLimited { retry_after },
         404 => ProviderError::ModelNotFound(body),
-        _ => ProviderError::ApiError { status, message: body },
+        _ => ProviderError::ApiError {
+            status,
+            message: body,
+        },
     }
 }
 
@@ -738,7 +751,10 @@ mod tests {
     async fn integration_complete() {
         let provider = match AnthropicProvider::from_env() {
             Ok(p) => p,
-            Err(e) => { eprintln!("ANTHROPIC_API_KEY not set — skipping ({e})"); return; }
+            Err(e) => {
+                eprintln!("ANTHROPIC_API_KEY not set — skipping ({e})");
+                return;
+            }
         };
         let request = CompletionRequest::new(
             "claude-haiku-4-5-20251001",
@@ -747,7 +763,10 @@ mod tests {
         .with_max_tokens(10);
         let response = match provider.complete(request).await {
             Ok(r) => r,
-            Err(e) => { eprintln!("Anthropic API unavailable — skipping ({e})"); return; }
+            Err(e) => {
+                eprintln!("Anthropic API unavailable — skipping ({e})");
+                return;
+            }
         };
         assert_eq!(response.stop_reason, StopReason::EndTurn);
         assert!(response.text().is_some());

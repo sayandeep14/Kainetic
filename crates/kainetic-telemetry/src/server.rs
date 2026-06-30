@@ -48,10 +48,7 @@ async fn metrics_handler(State(registry): State<Arc<Registry>>) -> impl IntoResp
             .into_response();
     }
     (
-        [(
-            axum::http::header::CONTENT_TYPE,
-            encoder.format_type(),
-        )],
+        [(axum::http::header::CONTENT_TYPE, encoder.format_type())],
         buf,
     )
         .into_response()

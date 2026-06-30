@@ -1,7 +1,7 @@
 //! Provider-agnostic completion request and response types.
 
 use futures::Stream;
-use kainetic_schema::{Message, MessageContent, MessageRole, ToolDescriptor, TokenUsage};
+use kainetic_schema::{Message, MessageContent, MessageRole, TokenUsage, ToolDescriptor};
 use serde::{Deserialize, Serialize};
 use std::pin::Pin;
 

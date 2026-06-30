@@ -9,7 +9,7 @@ use std::time::Duration;
 use async_stream::stream;
 use eventsource_stream::Eventsource;
 use futures::StreamExt;
-use kainetic_schema::{Message, MessageContent, MessageRole, ToolDescriptor, TokenUsage};
+use kainetic_schema::{Message, MessageContent, MessageRole, TokenUsage, ToolDescriptor};
 use serde::{Deserialize, Serialize};
 use tracing::warn;
 
@@ -239,7 +239,10 @@ impl OaiCompatClient {
         };
 
         let url = format!("{}{path}", self.base_url);
-        let mut builder = self.client.post(&url).header("content-type", "application/json");
+        let mut builder = self
+            .client
+            .post(&url)
+            .header("content-type", "application/json");
 
         builder = match &self.auth {
             AuthStrategy::Bearer(key) => builder.bearer_auth(key),
@@ -370,13 +373,22 @@ pub(crate) fn messages_to_wire(messages: &[Message]) -> Vec<OaiMessage> {
                 out.push(OaiMessage {
                     role: "assistant".into(),
                     content: if text.is_empty() { None } else { Some(text) },
-                    tool_calls: if tool_calls.is_empty() { None } else { Some(tool_calls) },
+                    tool_calls: if tool_calls.is_empty() {
+                        None
+                    } else {
+                        Some(tool_calls)
+                    },
                     tool_call_id: None,
                 });
             }
             MessageRole::Tool => {
                 for part in &msg.content {
-                    if let MessageContent::ToolResult { tool_use_id, content, .. } = part {
+                    if let MessageContent::ToolResult {
+                        tool_use_id,
+                        content,
+                        ..
+                    } = part
+                    {
                         out.push(OaiMessage {
                             role: "tool".into(),
                             content: Some(content.clone()),
@@ -515,7 +527,10 @@ pub(crate) async fn map_error_response(response: reqwest::Response) -> ProviderE
         401 => ProviderError::AuthFailed,
         429 => ProviderError::RateLimited { retry_after },
         404 => ProviderError::ModelNotFound(body),
-        _ => ProviderError::ApiError { status, message: body },
+        _ => ProviderError::ApiError {
+            status,
+            message: body,
+        },
     }
 }
 
@@ -552,8 +567,7 @@ where
     for attempt in 0..max_retries {
         match complete_fn().await {
             Err(ProviderError::RateLimited { retry_after }) => {
-                let delay =
-                    retry_after.unwrap_or_else(|| Duration::from_secs(1u64 << attempt));
+                let delay = retry_after.unwrap_or_else(|| Duration::from_secs(1u64 << attempt));
                 warn!(attempt, ?delay, "{}: rate limited, retrying", provider_name);
                 tokio::time::sleep(delay + jitter()).await;
             }

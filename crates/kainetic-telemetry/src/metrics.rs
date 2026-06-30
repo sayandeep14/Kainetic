@@ -1,8 +1,6 @@
 //! Prometheus metrics registry for Kainetic.
 
-use prometheus::{
-    CounterVec, GaugeVec, HistogramOpts, HistogramVec, Opts, Registry,
-};
+use prometheus::{CounterVec, GaugeVec, HistogramOpts, HistogramVec, Opts, Registry};
 
 use crate::error::TelemetryError;
 

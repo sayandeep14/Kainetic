@@ -44,7 +44,10 @@ pub fn build_router(state: AppState) -> Router {
         // Auth
         .route("/auth/token", post(token::post_token))
         // Agent registry
-        .route("/agents", get(agents::list_agents).post(agents::create_agent))
+        .route(
+            "/agents",
+            get(agents::list_agents).post(agents::create_agent),
+        )
         .route("/agents/:id", get(agents::get_agent))
         // Runs
         .route("/runs", get(runs::list_runs).post(runs::create_run))
@@ -104,7 +107,12 @@ mod tests {
     async fn healthz_returns_ok() {
         let app = build_router(mock_state());
         let resp = app
-            .oneshot(Request::builder().uri("/healthz").body(Body::empty()).unwrap())
+            .oneshot(
+                Request::builder()
+                    .uri("/healthz")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
             .await
             .unwrap();
         assert_eq!(resp.status(), StatusCode::OK);

@@ -93,10 +93,7 @@ impl Tool for WebFetchTool {
 
             debug!(url = %params.url, "web_fetch: fetching");
 
-            let fetch = self
-                .client
-                .get(&params.url)
-                .send();
+            let fetch = self.client.get(&params.url).send();
 
             let response = tokio::select! {
                 res = fetch => res.map_err(|e| ToolError::ExecutionFailed(e.to_string()))?,
@@ -141,8 +138,9 @@ fn html_to_text(html: &str) -> String {
 
     let document = Html::parse_document(html);
     // Select all text-bearing block elements.
-    let selector = Selector::parse("p, h1, h2, h3, h4, h5, h6, li, td, th, div, span, a, pre, code")
-        .expect("valid selector");
+    let selector =
+        Selector::parse("p, h1, h2, h3, h4, h5, h6, li, td, th, div, span, a, pre, code")
+            .expect("valid selector");
 
     let mut parts = Vec::new();
     for element in document.select(&selector) {

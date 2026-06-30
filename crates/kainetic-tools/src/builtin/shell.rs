@@ -200,10 +200,7 @@ mod inner {
         async fn allowlist_blocks_unknown() {
             let tool = ShellTool::new().with_allowlist(vec!["echo".into()]);
             let err = tool
-                .call(
-                    serde_json::json!({ "command": "ls", "args": [] }),
-                    ctx(),
-                )
+                .call(serde_json::json!({ "command": "ls", "args": [] }), ctx())
                 .await
                 .unwrap_err();
             assert!(matches!(err, ToolError::InputValidation(_)));

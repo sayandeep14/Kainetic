@@ -122,8 +122,7 @@ impl syn::parse::Parse for ToolAttrs {
         if input.is_empty() {
             return Ok(attrs);
         }
-        let pairs =
-            Punctuated::<syn::MetaNameValue, Token![,]>::parse_terminated(input)?;
+        let pairs = Punctuated::<syn::MetaNameValue, Token![,]>::parse_terminated(input)?;
         for pair in &pairs {
             let ident = pair
                 .path
@@ -175,10 +174,7 @@ fn parse_duration_ms(s: &str) -> Option<u64> {
 
 // ─── Code generation ──────────────────────────────────────────────────────────
 
-fn expand_tool(
-    attrs: ToolAttrs,
-    func: ItemFn,
-) -> syn::Result<proc_macro2::TokenStream> {
+fn expand_tool(attrs: ToolAttrs, func: ItemFn) -> syn::Result<proc_macro2::TokenStream> {
     if func.sig.asyncness.is_none() {
         return Err(syn::Error::new_spanned(
             func.sig.fn_token,
@@ -219,9 +215,8 @@ fn expand_tool(
         }
     };
 
-    let struct_doc = format!(
-        "Auto-generated [`kainetic_tools::Tool`] implementation for [`{fn_name_str}`]."
-    );
+    let struct_doc =
+        format!("Auto-generated [`kainetic_tools::Tool`] implementation for [`{fn_name_str}`].");
 
     let expanded = quote! {
         #func
@@ -353,9 +348,8 @@ fn expand_agent(attrs: AgentAttrs, func: ItemFn) -> syn::Result<proc_macro2::Tok
     let output_type = extract_output_type(&func)?;
     let error_type = extract_error_type(&func)?;
 
-    let struct_doc = format!(
-        "Auto-generated [`kainetic_core::Agent`] implementation for [`{fn_name_str}`]."
-    );
+    let struct_doc =
+        format!("Auto-generated [`kainetic_core::Agent`] implementation for [`{fn_name_str}`].");
 
     let expanded = quote! {
         #func

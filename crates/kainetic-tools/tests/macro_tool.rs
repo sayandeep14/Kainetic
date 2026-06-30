@@ -68,7 +68,10 @@ struct SlowInput {}
 #[derive(Debug, Serialize, JsonSchema)]
 struct SlowOutput {}
 
-#[kainetic_macros::tool(description = "Sleeps briefly, used to test timeout.", timeout = "100ms")]
+#[kainetic_macros::tool(
+    description = "Sleeps briefly, used to test timeout.",
+    timeout = "100ms"
+)]
 async fn slow_tool(input: SlowInput, _ctx: ToolContext) -> Result<SlowOutput, ToolError> {
     tokio::time::sleep(std::time::Duration::from_secs(60)).await;
     let _ = input;
@@ -100,7 +103,10 @@ fn name_matches_function_name() {
 
 #[test]
 fn description_matches_attribute() {
-    assert_eq!(Echo.description(), "Echoes the input message back unchanged.");
+    assert_eq!(
+        Echo.description(),
+        "Echoes the input message back unchanged."
+    );
     assert_eq!(Add.description(), "Adds two numbers.");
 }
 
@@ -152,7 +158,10 @@ async fn timeout_attribute_fires() {
         .call(serde_json::json!({}), ctx())
         .await
         .unwrap_err();
-    assert!(matches!(err, ToolError::Timeout), "expected Timeout, got {err:?}");
+    assert!(
+        matches!(err, ToolError::Timeout),
+        "expected Timeout, got {err:?}"
+    );
 }
 
 #[tokio::test]

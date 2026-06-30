@@ -6,8 +6,8 @@ use std::time::{Duration, Instant};
 use futures::stream::{FuturesUnordered, StreamExt};
 use kainetic_providers::{CompletionRequest, ToolCall, ToolCallResult};
 use kainetic_schema::Message;
-use kainetic_tools::ToolRegistry;
 use kainetic_tools::ToolContext;
+use kainetic_tools::ToolRegistry;
 
 use crate::event::AgentEvent;
 use crate::{AgentConfig, AgentContext, AgentError};
@@ -71,8 +71,7 @@ impl ReActLoop {
                 return Err(AgentError::Cancelled);
             }
 
-            let mut request =
-                CompletionRequest::new(self.config.model.clone(), messages.clone());
+            let mut request = CompletionRequest::new(self.config.model.clone(), messages.clone());
 
             if !tool_descriptors.is_empty() {
                 request = request.with_tools(tool_descriptors.clone());
@@ -101,8 +100,7 @@ impl ReActLoop {
                 .await
                 .map_err(|e| AgentError::ProviderError(e.to_string()))?;
 
-            let llm_latency_ms =
-                u64::try_from(llm_start.elapsed().as_millis()).unwrap_or(u64::MAX);
+            let llm_latency_ms = u64::try_from(llm_start.elapsed().as_millis()).unwrap_or(u64::MAX);
             total_tokens = total_tokens.saturating_add(response.usage.total_tokens);
 
             ctx.emit(AgentEvent::LlmCallCompleted {
@@ -121,8 +119,7 @@ impl ReActLoop {
                     run_id: ctx.run_id,
                     total_tokens,
                     cost_usd: 0.0,
-                    latency_ms: u64::try_from(run_start.elapsed().as_millis())
-                        .unwrap_or(u64::MAX),
+                    latency_ms: u64::try_from(run_start.elapsed().as_millis()).unwrap_or(u64::MAX),
                 });
                 return Ok(text);
             }
@@ -138,7 +135,9 @@ impl ReActLoop {
             }
         }
 
-        Err(AgentError::MaxIterationsExceeded(self.config.max_iterations))
+        Err(AgentError::MaxIterationsExceeded(
+            self.config.max_iterations,
+        ))
     }
 }
 
@@ -154,10 +153,7 @@ async fn execute_tools_parallel(
     futs.collect().await
 }
 
-async fn execute_tools_serial(
-    tool_calls: Vec<ToolCall>,
-    ctx: AgentContext,
-) -> Vec<ToolCallResult> {
+async fn execute_tools_serial(tool_calls: Vec<ToolCall>, ctx: AgentContext) -> Vec<ToolCallResult> {
     let mut results = Vec::new();
     for call in tool_calls {
         results.push(execute_one_tool(call, Arc::clone(&ctx.tools), ctx.clone()).await);
@@ -359,8 +355,9 @@ mod tests {
 
     #[tokio::test]
     async fn max_iterations_exceeded_returns_error() {
-        let responses: Vec<CompletionResponse> =
-            (0..25).map(|i| MockProvider::tool_use(&format!("id{i}"), "noop", serde_json::json!({}))).collect();
+        let responses: Vec<CompletionResponse> = (0..25)
+            .map(|i| MockProvider::tool_use(&format!("id{i}"), "noop", serde_json::json!({})))
+            .collect();
         let provider = MockProvider::from_responses(responses);
         let ctx = make_ctx(provider);
         let config = AgentConfig::builder().max_iterations(3).build();
@@ -399,7 +396,8 @@ mod tests {
             async fn stream(
                 &self,
                 _: CompletionRequest,
-            ) -> Result<BoxStream<Result<CompletionChunk, ProviderError>>, ProviderError> {
+            ) -> Result<BoxStream<Result<CompletionChunk, ProviderError>>, ProviderError>
+            {
                 Err(ProviderError::AuthFailed)
             }
 
@@ -450,7 +448,10 @@ mod tests {
             event_kinds.push(std::mem::discriminant(&ev));
         }
 
-        assert!(!event_kinds.is_empty(), "at least one event should be emitted");
+        assert!(
+            !event_kinds.is_empty(),
+            "at least one event should be emitted"
+        );
     }
 
     #[tokio::test]

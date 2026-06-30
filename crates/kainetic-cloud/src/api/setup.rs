@@ -76,33 +76,29 @@ pub async fn post_setup(
     let mut tx = state.pool.begin().await.map_err(de)?;
 
     // 1. Create user.
-    let user_row =
-        sqlx::query("INSERT INTO kc_users (email) VALUES ($1) RETURNING id, created_at")
-            .bind(body.email.trim())
-            .fetch_one(&mut *tx)
-            .await
-            .map_err(de)?;
+    let user_row = sqlx::query("INSERT INTO kc_users (email) VALUES ($1) RETURNING id, created_at")
+        .bind(body.email.trim())
+        .fetch_one(&mut *tx)
+        .await
+        .map_err(de)?;
     let user_id: Uuid = user_row.try_get("id").map_err(de)?;
 
     // 2. Create team.
-    let team_row =
-        sqlx::query("INSERT INTO kc_teams (name) VALUES ($1) RETURNING id, created_at")
-            .bind(body.team_name.trim())
-            .fetch_one(&mut *tx)
-            .await
-            .map_err(de)?;
+    let team_row = sqlx::query("INSERT INTO kc_teams (name) VALUES ($1) RETURNING id, created_at")
+        .bind(body.team_name.trim())
+        .fetch_one(&mut *tx)
+        .await
+        .map_err(de)?;
     let team_id: Uuid = team_row.try_get("id").map_err(de)?;
     let created_at: DateTime<Utc> = team_row.try_get("created_at").map_err(de)?;
 
     // 3. Make the user an admin of the team.
-    sqlx::query(
-        "INSERT INTO kc_team_members (team_id, user_id, role) VALUES ($1, $2, 'admin')",
-    )
-    .bind(team_id)
-    .bind(user_id)
-    .execute(&mut *tx)
-    .await
-    .map_err(de)?;
+    sqlx::query("INSERT INTO kc_team_members (team_id, user_id, role) VALUES ($1, $2, 'admin')")
+        .bind(team_id)
+        .bind(user_id)
+        .execute(&mut *tx)
+        .await
+        .map_err(de)?;
 
     // 4. Generate and store the initial API key.
     let generated = api_key::generate()?;

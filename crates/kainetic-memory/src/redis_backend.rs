@@ -73,8 +73,8 @@ impl MemoryBackend for RedisBackend {
             .get_multiplexed_async_connection()
             .await
             .map_err(|e| MemoryError::Backend(e.to_string()))?;
-        let json = serde_json::to_string(&entry)
-            .map_err(|e| MemoryError::Serialization(e.to_string()))?;
+        let json =
+            serde_json::to_string(&entry).map_err(|e| MemoryError::Serialization(e.to_string()))?;
         let rk = self.redis_key(&key);
         conn.set::<_, _, ()>(&rk, json)
             .await
@@ -119,7 +119,9 @@ mod tests {
 
     #[tokio::test]
     async fn write_and_read_round_trips() {
-        let Some(backend) = redis_backend() else { return };
+        let Some(backend) = redis_backend() else {
+            return;
+        };
         let k = MemoryKey::new("test", format!("key-{}", uuid::Uuid::new_v4()));
         backend
             .write(k.clone(), MemoryEntry::new("hello redis"))
@@ -132,14 +134,18 @@ mod tests {
 
     #[tokio::test]
     async fn read_missing_returns_none() {
-        let Some(backend) = redis_backend() else { return };
+        let Some(backend) = redis_backend() else {
+            return;
+        };
         let k = MemoryKey::new("test", format!("missing-{}", uuid::Uuid::new_v4()));
         assert!(backend.read(&k).await.unwrap().is_none());
     }
 
     #[tokio::test]
     async fn search_returns_unsupported() {
-        let Some(backend) = redis_backend() else { return };
+        let Some(backend) = redis_backend() else {
+            return;
+        };
         let err = backend.search(&SemanticQuery::new("q")).await.unwrap_err();
         assert!(matches!(err, MemoryError::Unsupported(_)));
     }

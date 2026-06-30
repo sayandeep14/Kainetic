@@ -104,19 +104,13 @@ async fn verify_api_key(
                 "developer" => Role::Developer,
                 _ => Role::Viewer,
             };
-            let user_id: String = row
-                .try_get("user_id")
-                .unwrap_or_default();
-            let team_id: String = row
-                .try_get("team_id")
-                .unwrap_or_default();
+            let user_id: String = row.try_get("user_id").unwrap_or_default();
+            let team_id: String = row.try_get("team_id").unwrap_or_default();
 
-            let _ = sqlx::query(
-                "UPDATE kc_api_keys SET last_used_at = NOW() WHERE prefix = $1",
-            )
-            .bind(prefix)
-            .execute(pool)
-            .await;
+            let _ = sqlx::query("UPDATE kc_api_keys SET last_used_at = NOW() WHERE prefix = $1")
+                .bind(prefix)
+                .execute(pool)
+                .await;
 
             return Ok(Some((user_id, team_id, role)));
         }
@@ -177,7 +171,10 @@ mod tests {
             team_id: "t".into(),
             role: Role::Developer,
         };
-        assert!(matches!(user.require_admin(), Err(CloudError::Forbidden(_))));
+        assert!(matches!(
+            user.require_admin(),
+            Err(CloudError::Forbidden(_))
+        ));
     }
 
     #[test]
@@ -197,7 +194,10 @@ mod tests {
             team_id: "t".into(),
             role: Role::Viewer,
         };
-        assert!(matches!(user.require_write(), Err(CloudError::Forbidden(_))));
+        assert!(matches!(
+            user.require_write(),
+            Err(CloudError::Forbidden(_))
+        ));
     }
 
     #[test]

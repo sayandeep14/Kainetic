@@ -59,8 +59,7 @@ impl CloudConfig {
         let jwt_secret = std::env::var("JWT_SECRET")
             .unwrap_or_else(|_| "dev-secret-change-me-in-production".to_string());
 
-        let audit_hmac_key =
-            std::env::var("AUDIT_HMAC_KEY").unwrap_or_else(|_| jwt_secret.clone());
+        let audit_hmac_key = std::env::var("AUDIT_HMAC_KEY").unwrap_or_else(|_| jwt_secret.clone());
 
         let jwt_ttl_secs: u64 = std::env::var("JWT_TTL_SECS")
             .ok()

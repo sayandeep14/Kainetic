@@ -202,8 +202,7 @@ impl ModelProvider for AzureOpenAiProvider {
         for attempt in 0..MAX_RETRIES {
             match self.do_complete(&request).await {
                 Err(ProviderError::RateLimited { retry_after }) => {
-                    let delay =
-                        retry_after.unwrap_or_else(|| Duration::from_secs(1u64 << attempt));
+                    let delay = retry_after.unwrap_or_else(|| Duration::from_secs(1u64 << attempt));
                     warn!(attempt, ?delay, "azure_openai: rate limited, retrying");
                     tokio::time::sleep(delay + jitter()).await;
                 }
@@ -241,7 +240,11 @@ impl ModelProvider for AzureOpenAiProvider {
 
     fn cost_usd(&self, usage: &TokenUsage, model: &str) -> f64 {
         // Use deployment name as model if request model is empty.
-        let effective_model = if model.is_empty() { &self.deployment } else { model };
+        let effective_model = if model.is_empty() {
+            &self.deployment
+        } else {
+            model
+        };
         let (in_per_m, out_per_m) = price_per_million(effective_model);
         f64::from(usage.prompt_tokens) * in_per_m / 1_000_000.0
             + f64::from(usage.completion_tokens) * out_per_m / 1_000_000.0
@@ -282,7 +285,10 @@ mod tests {
     #[tokio::test]
     async fn complete_sends_api_key_header() {
         let server = MockServer::start().await;
-        let endpoint = format!("{}/openai/deployments/gpt-4o/chat/completions?api-version=2024-02-01", server.uri());
+        let endpoint = format!(
+            "{}/openai/deployments/gpt-4o/chat/completions?api-version=2024-02-01",
+            server.uri()
+        );
 
         Mock::given(method("POST"))
             .and(header("api-key", "test-azure-key"))

@@ -87,7 +87,9 @@ impl Supervisor {
             let counter = Arc::clone(&self.in_flight[idx]);
 
             counter.fetch_add(1, Ordering::Relaxed);
-            let result = self.workers[idx].run(input_value.clone(), ctx.clone()).await;
+            let result = self.workers[idx]
+                .run(input_value.clone(), ctx.clone())
+                .await;
             counter.fetch_sub(1, Ordering::Relaxed);
 
             match result {
@@ -110,16 +112,13 @@ impl Supervisor {
     fn select_worker(&self, input: &Value) -> usize {
         let n = self.workers.len();
         match &self.strategy {
-            RoutingStrategy::RoundRobin => {
-                self.rr_cursor.fetch_add(1, Ordering::Relaxed) % n
-            }
-            RoutingStrategy::LeastLoaded => {
-                self.in_flight
-                    .iter()
-                    .enumerate()
-                    .min_by_key(|(_, c)| c.load(Ordering::Relaxed))
-                    .map_or(0, |(i, _)| i)
-            }
+            RoutingStrategy::RoundRobin => self.rr_cursor.fetch_add(1, Ordering::Relaxed) % n,
+            RoutingStrategy::LeastLoaded => self
+                .in_flight
+                .iter()
+                .enumerate()
+                .min_by_key(|(_, c)| c.load(Ordering::Relaxed))
+                .map_or(0, |(i, _)| i),
             RoutingStrategy::Random => rand::thread_rng().gen_range(0..n),
             RoutingStrategy::ContentBased(f) => f(input) % n,
         }
@@ -198,15 +197,27 @@ mod tests {
 
     #[async_trait]
     impl ModelProvider for MockProvider {
-        async fn complete(&self, _: CompletionRequest) -> Result<CompletionResponse, ProviderError> {
+        async fn complete(
+            &self,
+            _: CompletionRequest,
+        ) -> Result<CompletionResponse, ProviderError> {
             Err(ProviderError::AuthFailed)
         }
-        async fn stream(&self, _: CompletionRequest) -> Result<BoxStream<Result<CompletionChunk, ProviderError>>, ProviderError> {
+        async fn stream(
+            &self,
+            _: CompletionRequest,
+        ) -> Result<BoxStream<Result<CompletionChunk, ProviderError>>, ProviderError> {
             Err(ProviderError::AuthFailed)
         }
-        fn cost_usd(&self, _: &TokenUsage, _: &str) -> f64 { 0.0 }
-        fn name(&self) -> &'static str { "mock" }
-        fn default_model(&self) -> &'static str { "mock-model" }
+        fn cost_usd(&self, _: &TokenUsage, _: &str) -> f64 {
+            0.0
+        }
+        fn name(&self) -> &'static str {
+            "mock"
+        }
+        fn default_model(&self) -> &'static str {
+            "mock-model"
+        }
     }
 
     fn test_ctx() -> AgentContext {
@@ -245,9 +256,15 @@ mod tests {
         type Output = String;
         type Error = AgentError;
 
-        fn name(&self) -> &'static str { "const" }
-        fn description(&self) -> &'static str { "Returns a constant." }
-        fn config(&self) -> &AgentConfig { &self.config }
+        fn name(&self) -> &'static str {
+            "const"
+        }
+        fn description(&self) -> &'static str {
+            "Returns a constant."
+        }
+        fn config(&self) -> &AgentConfig {
+            &self.config
+        }
 
         fn run(&self, _: String, _: AgentContext) -> AgentFuture<'_, String, AgentError> {
             let mut count = self.fail_count.lock().unwrap();
@@ -295,7 +312,10 @@ mod tests {
             .build();
 
         let err = sup.run("x".to_owned(), test_ctx()).await.unwrap_err();
-        assert!(matches!(err, SupervisorError::AllAttemptsFailed { attempts: 3, .. }));
+        assert!(matches!(
+            err,
+            SupervisorError::AllAttemptsFailed { attempts: 3, .. }
+        ));
     }
 
     #[tokio::test]

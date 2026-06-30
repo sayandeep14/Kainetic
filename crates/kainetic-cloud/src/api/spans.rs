@@ -55,7 +55,9 @@ pub async fn post_spans(
     Json(body): Json<IngestRequest>,
 ) -> Result<Json<IngestResponse>, CloudError> {
     if body.spans.is_empty() {
-        return Err(CloudError::BadRequest("spans array must not be empty".into()));
+        return Err(CloudError::BadRequest(
+            "spans array must not be empty".into(),
+        ));
     }
 
     let team_id: Uuid = user

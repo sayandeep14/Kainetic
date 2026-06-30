@@ -48,9 +48,7 @@ impl Add for TokenUsage {
     fn add(self, rhs: Self) -> Self {
         Self {
             prompt_tokens: self.prompt_tokens.saturating_add(rhs.prompt_tokens),
-            completion_tokens: self
-                .completion_tokens
-                .saturating_add(rhs.completion_tokens),
+            completion_tokens: self.completion_tokens.saturating_add(rhs.completion_tokens),
             total_tokens: self.total_tokens.saturating_add(rhs.total_tokens),
         }
     }

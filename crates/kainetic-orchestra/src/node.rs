@@ -10,8 +10,9 @@ use serde_json::Value;
 use crate::error::PipelineError;
 
 /// Type alias for the boxed runner closure inside an [`AgentNode`].
-type NodeRunner =
-    Box<dyn Fn(Value, AgentContext) -> BoxFuture<'static, Result<Value, PipelineError>> + Send + Sync>;
+type NodeRunner = Box<
+    dyn Fn(Value, AgentContext) -> BoxFuture<'static, Result<Value, PipelineError>> + Send + Sync,
+>;
 
 /// A named, type-erased agent node that communicates via [`serde_json::Value`].
 ///
@@ -47,13 +48,10 @@ impl AgentNode {
             Box::pin(async move {
                 let input: I = serde_json::from_value(input_json)
                     .map_err(|e| PipelineError::Serialization(e.to_string()))?;
-                let output = agent
-                    .run(input, ctx)
-                    .await
-                    .map_err(|e| {
-                        let ae: AgentError = e.into();
-                        PipelineError::Agent(ae.to_string())
-                    })?;
+                let output = agent.run(input, ctx).await.map_err(|e| {
+                    let ae: AgentError = e.into();
+                    PipelineError::Agent(ae.to_string())
+                })?;
                 serde_json::to_value(output)
                     .map_err(|e| PipelineError::Serialization(e.to_string()))
             }) as BoxFuture<'static, Result<Value, PipelineError>>

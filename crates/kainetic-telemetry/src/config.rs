@@ -118,9 +118,7 @@ impl TelemetryConfig {
         rx: broadcast::Receiver<AgentEvent>,
     ) -> Result<TelemetryHandle, TelemetryError> {
         #[allow(unused_variables)]
-        let service_name = self
-            .service_name
-            .unwrap_or_else(|| "kainetic".to_owned());
+        let service_name = self.service_name.unwrap_or_else(|| "kainetic".to_owned());
 
         // --- Tracing ---
         #[cfg(feature = "otlp")]
@@ -147,10 +145,7 @@ impl TelemetryConfig {
         let metrics = Arc::new(KaineticMetrics::new(&registry)?);
 
         // --- Event handler ---
-        let cost = CostAccumulator::new(
-            self.alert_cost_per_run_usd,
-            self.alert_cost_per_hour_usd,
-        );
+        let cost = CostAccumulator::new(self.alert_cost_per_run_usd, self.alert_cost_per_hour_usd);
         let handler = TelemetryEventHandler::new(Arc::clone(&metrics), cost);
         let handler_handle = handler.spawn(rx);
 

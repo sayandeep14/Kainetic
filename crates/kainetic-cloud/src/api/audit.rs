@@ -76,8 +76,12 @@ pub async fn append_audit(
     .map_err(|e| CloudError::Database(e.to_string()))?
     .and_then(|row| row.try_get::<String, _>("chain_hash").ok());
 
-    let chain_hash =
-        compute_chain_hash(hmac_key, prev_hash.as_deref().unwrap_or(""), action, resource_id);
+    let chain_hash = compute_chain_hash(
+        hmac_key,
+        prev_hash.as_deref().unwrap_or(""),
+        action,
+        resource_id,
+    );
 
     sqlx::query(
         "INSERT INTO kc_audit_log \

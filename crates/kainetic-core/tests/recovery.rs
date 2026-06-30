@@ -24,15 +24,15 @@ use std::time::Duration;
 use async_trait::async_trait;
 use kainetic_core::{AgentConfig, AgentContext, AgentError, ReActLoop};
 use kainetic_providers::{
-    BoxStream, CompletionChunk, CompletionRequest, CompletionResponse, ModelProvider, ProviderError,
-    StopReason,
+    BoxStream, CompletionChunk, CompletionRequest, CompletionResponse, ModelProvider,
+    ProviderError, StopReason,
 };
 use kainetic_schema::{MessageContent, RootSchema, TokenUsage};
 use kainetic_tools::{Tool, ToolContext, ToolFuture, ToolRegistry};
 use schemars::{schema_for, JsonSchema};
 use serde::{Deserialize, Serialize};
-use std::sync::Mutex;
 use std::collections::VecDeque;
+use std::sync::Mutex;
 
 // ── Shared helpers ────────────────────────────────────────────────────────────
 
@@ -41,13 +41,19 @@ struct QueuedProvider {
 }
 
 impl QueuedProvider {
-    fn responses(items: impl IntoIterator<Item = Result<CompletionResponse, ProviderError>>) -> Self {
-        Self { queue: Mutex::new(items.into_iter().collect()) }
+    fn responses(
+        items: impl IntoIterator<Item = Result<CompletionResponse, ProviderError>>,
+    ) -> Self {
+        Self {
+            queue: Mutex::new(items.into_iter().collect()),
+        }
     }
 
     fn ok(text: &str) -> CompletionResponse {
         CompletionResponse {
-            content: vec![MessageContent::Text { text: text.to_owned() }],
+            content: vec![MessageContent::Text {
+                text: text.to_owned(),
+            }],
             stop_reason: StopReason::EndTurn,
             usage: TokenUsage::new(10, 5),
             model: "mock".to_owned(),
@@ -70,16 +76,23 @@ impl QueuedProvider {
 
 #[async_trait]
 impl ModelProvider for QueuedProvider {
-    fn name(&self) -> &'static str { "mock" }
-    fn default_model(&self) -> &'static str { "mock-model" }
-    fn cost_usd(&self, _: &TokenUsage, _: &str) -> f64 { 0.0 }
+    fn name(&self) -> &'static str {
+        "mock"
+    }
+    fn default_model(&self) -> &'static str {
+        "mock-model"
+    }
+    fn cost_usd(&self, _: &TokenUsage, _: &str) -> f64 {
+        0.0
+    }
 
     async fn complete(&self, _: CompletionRequest) -> Result<CompletionResponse, ProviderError> {
-        self.queue
-            .lock()
-            .unwrap()
-            .pop_front()
-            .unwrap_or_else(|| Err(ProviderError::ApiError { status: 500, message: "empty".into() }))
+        self.queue.lock().unwrap().pop_front().unwrap_or_else(|| {
+            Err(ProviderError::ApiError {
+                status: 500,
+                message: "empty".into(),
+            })
+        })
     }
 
     async fn stream(
@@ -95,9 +108,15 @@ struct HangingProvider;
 
 #[async_trait]
 impl ModelProvider for HangingProvider {
-    fn name(&self) -> &'static str { "hanging" }
-    fn default_model(&self) -> &'static str { "hanging-model" }
-    fn cost_usd(&self, _: &TokenUsage, _: &str) -> f64 { 0.0 }
+    fn name(&self) -> &'static str {
+        "hanging"
+    }
+    fn default_model(&self) -> &'static str {
+        "hanging-model"
+    }
+    fn cost_usd(&self, _: &TokenUsage, _: &str) -> f64 {
+        0.0
+    }
 
     async fn complete(&self, _: CompletionRequest) -> Result<CompletionResponse, ProviderError> {
         tokio::time::sleep(Duration::from_secs(3600)).await;
@@ -123,15 +142,25 @@ fn make_ctx_with_tools(provider: Arc<dyn ModelProvider>, tools: ToolRegistry) ->
 // ── Simple echo tool ──────────────────────────────────────────────────────────
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema)]
-struct EchoInput { message: String }
+struct EchoInput {
+    message: String,
+}
 
 struct EchoTool;
 
 impl Tool for EchoTool {
-    fn name(&self) -> &'static str { "echo" }
-    fn description(&self) -> &'static str { "Echoes the input." }
-    fn input_schema(&self) -> RootSchema { schema_for!(EchoInput) }
-    fn output_schema(&self) -> RootSchema { schema_for!(EchoInput) }
+    fn name(&self) -> &'static str {
+        "echo"
+    }
+    fn description(&self) -> &'static str {
+        "Echoes the input."
+    }
+    fn input_schema(&self) -> RootSchema {
+        schema_for!(EchoInput)
+    }
+    fn output_schema(&self) -> RootSchema {
+        schema_for!(EchoInput)
+    }
     fn call(&self, input: serde_json::Value, _: ToolContext) -> ToolFuture<'_> {
         Box::pin(async move { Ok(input) })
     }
@@ -159,7 +188,10 @@ async fn provider_500_surfaces_as_provider_error() {
 #[tokio::test]
 async fn context_length_exceeded_surfaces_as_provider_error() {
     let provider = Arc::new(QueuedProvider::responses([Err(
-        ProviderError::ContextLengthExceeded { limit: 100_000, actual: 110_000 },
+        ProviderError::ContextLengthExceeded {
+            limit: 100_000,
+            actual: 110_000,
+        },
     )]));
     let ctx = make_ctx(provider);
     let loop_ = ReActLoop::new(AgentConfig::builder().build());
@@ -176,7 +208,11 @@ async fn context_length_exceeded_surfaces_as_provider_error() {
 async fn unknown_tool_name_continues_loop() {
     let provider = Arc::new(QueuedProvider::responses([
         // First response: request a tool that doesn't exist.
-        Ok(QueuedProvider::tool_use("id1", "nonexistent_tool", serde_json::json!({}))),
+        Ok(QueuedProvider::tool_use(
+            "id1",
+            "nonexistent_tool",
+            serde_json::json!({}),
+        )),
         // Second response: final text after seeing the error result.
         Ok(QueuedProvider::ok("recovered")),
     ]));
@@ -192,7 +228,11 @@ async fn unknown_tool_name_continues_loop() {
 async fn malformed_tool_input_continues_loop() {
     let provider = Arc::new(QueuedProvider::responses([
         // Tool call with wrong input type (missing required `message` field).
-        Ok(QueuedProvider::tool_use("id1", "echo", serde_json::json!({ "wrong": 42 }))),
+        Ok(QueuedProvider::tool_use(
+            "id1",
+            "echo",
+            serde_json::json!({ "wrong": 42 }),
+        )),
         // Final response after receiving the validation error.
         Ok(QueuedProvider::ok("recovered after validation error")),
     ]));
@@ -225,7 +265,11 @@ async fn timeout_fires_when_provider_hangs() {
 #[tokio::test]
 async fn successful_tool_call_round_trip() {
     let provider = Arc::new(QueuedProvider::responses([
-        Ok(QueuedProvider::tool_use("id1", "echo", serde_json::json!({ "message": "ping" }))),
+        Ok(QueuedProvider::tool_use(
+            "id1",
+            "echo",
+            serde_json::json!({ "message": "ping" }),
+        )),
         Ok(QueuedProvider::ok("pong")),
     ]));
     let registry = ToolRegistry::new();
@@ -240,8 +284,16 @@ async fn successful_tool_call_round_trip() {
 #[tokio::test]
 async fn multiple_tool_iterations_all_succeed() {
     let provider = Arc::new(QueuedProvider::responses([
-        Ok(QueuedProvider::tool_use("id1", "echo", serde_json::json!({ "message": "a" }))),
-        Ok(QueuedProvider::tool_use("id2", "echo", serde_json::json!({ "message": "b" }))),
+        Ok(QueuedProvider::tool_use(
+            "id1",
+            "echo",
+            serde_json::json!({ "message": "a" }),
+        )),
+        Ok(QueuedProvider::tool_use(
+            "id2",
+            "echo",
+            serde_json::json!({ "message": "b" }),
+        )),
         Ok(QueuedProvider::ok("final")),
     ]));
     let registry = ToolRegistry::new();

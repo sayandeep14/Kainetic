@@ -48,7 +48,9 @@ impl SqliteBackend {
     pub fn open(path: impl AsRef<Path>) -> Result<Self, MemoryError> {
         let manager = SqliteConnectionManager::file(path);
         let pool = Pool::new(manager).map_err(|e| MemoryError::Backend(e.to_string()))?;
-        let conn = pool.get().map_err(|e| MemoryError::Backend(e.to_string()))?;
+        let conn = pool
+            .get()
+            .map_err(|e| MemoryError::Backend(e.to_string()))?;
         conn.execute_batch(
             "CREATE TABLE IF NOT EXISTS kainetic_memory (
                 namespace TEXT NOT NULL,
@@ -74,7 +76,9 @@ impl SqliteBackend {
             .max_size(1) // in-memory DBs can't share across connections
             .build(manager)
             .map_err(|e| MemoryError::Backend(e.to_string()))?;
-        let conn = pool.get().map_err(|e| MemoryError::Backend(e.to_string()))?;
+        let conn = pool
+            .get()
+            .map_err(|e| MemoryError::Backend(e.to_string()))?;
         conn.execute_batch(
             "CREATE TABLE IF NOT EXISTS kainetic_memory (
                 namespace TEXT NOT NULL,
@@ -97,7 +101,9 @@ impl MemoryBackend for SqliteBackend {
         let ns = key.namespace.clone();
         let k = key.key.clone();
         tokio::task::spawn_blocking(move || {
-            let conn = pool.get().map_err(|e| MemoryError::Backend(e.to_string()))?;
+            let conn = pool
+                .get()
+                .map_err(|e| MemoryError::Backend(e.to_string()))?;
             let mut stmt = conn
                 .prepare(
                     "SELECT content, metadata, created_at \
@@ -107,12 +113,21 @@ impl MemoryBackend for SqliteBackend {
             let mut rows = stmt
                 .query(params![ns, k])
                 .map_err(|e| MemoryError::Backend(e.to_string()))?;
-            match rows.next().map_err(|e| MemoryError::Backend(e.to_string()))? {
+            match rows
+                .next()
+                .map_err(|e| MemoryError::Backend(e.to_string()))?
+            {
                 None => Ok(None),
                 Some(row) => {
-                    let content: String = row.get(0).map_err(|e| MemoryError::Backend(e.to_string()))?;
-                    let metadata_str: String = row.get(1).map_err(|e| MemoryError::Backend(e.to_string()))?;
-                    let created_at_str: String = row.get(2).map_err(|e| MemoryError::Backend(e.to_string()))?;
+                    let content: String = row
+                        .get(0)
+                        .map_err(|e| MemoryError::Backend(e.to_string()))?;
+                    let metadata_str: String = row
+                        .get(1)
+                        .map_err(|e| MemoryError::Backend(e.to_string()))?;
+                    let created_at_str: String = row
+                        .get(2)
+                        .map_err(|e| MemoryError::Backend(e.to_string()))?;
                     let metadata = serde_json::from_str(&metadata_str)
                         .map_err(|e| MemoryError::Serialization(e.to_string()))?;
                     let created_at = chrono::DateTime::parse_from_rfc3339(&created_at_str)
@@ -137,7 +152,9 @@ impl MemoryBackend for SqliteBackend {
             let metadata_str = serde_json::to_string(&entry.metadata)
                 .map_err(|e| MemoryError::Serialization(e.to_string()))?;
             let created_at_str = entry.created_at.to_rfc3339();
-            let conn = pool.get().map_err(|e| MemoryError::Backend(e.to_string()))?;
+            let conn = pool
+                .get()
+                .map_err(|e| MemoryError::Backend(e.to_string()))?;
             conn.execute(
                 "INSERT INTO kainetic_memory (namespace, key, content, metadata, created_at) \
                  VALUES (?1, ?2, ?3, ?4, ?5) \
@@ -145,7 +162,13 @@ impl MemoryBackend for SqliteBackend {
                      content    = excluded.content, \
                      metadata   = excluded.metadata, \
                      created_at = excluded.created_at",
-                params![key.namespace, key.key, entry.content, metadata_str, created_at_str],
+                params![
+                    key.namespace,
+                    key.key,
+                    entry.content,
+                    metadata_str,
+                    created_at_str
+                ],
             )
             .map_err(|e| MemoryError::Backend(e.to_string()))?;
             Ok(())
@@ -165,7 +188,9 @@ impl MemoryBackend for SqliteBackend {
         let ns = key.namespace.clone();
         let k = key.key.clone();
         tokio::task::spawn_blocking(move || {
-            let conn = pool.get().map_err(|e| MemoryError::Backend(e.to_string()))?;
+            let conn = pool
+                .get()
+                .map_err(|e| MemoryError::Backend(e.to_string()))?;
             conn.execute(
                 "DELETE FROM kainetic_memory WHERE namespace = ?1 AND key = ?2",
                 params![ns, k],
@@ -213,8 +238,14 @@ mod tests {
     async fn write_overwrites_existing() {
         let backend = SqliteBackend::in_memory().unwrap();
         let k = key("ns", "k");
-        backend.write(k.clone(), MemoryEntry::new("v1")).await.unwrap();
-        backend.write(k.clone(), MemoryEntry::new("v2")).await.unwrap();
+        backend
+            .write(k.clone(), MemoryEntry::new("v1"))
+            .await
+            .unwrap();
+        backend
+            .write(k.clone(), MemoryEntry::new("v2"))
+            .await
+            .unwrap();
         assert_eq!(backend.read(&k).await.unwrap().unwrap().content, "v2");
     }
 
@@ -222,7 +253,10 @@ mod tests {
     async fn delete_removes_entry() {
         let backend = SqliteBackend::in_memory().unwrap();
         let k = key("ns", "d");
-        backend.write(k.clone(), MemoryEntry::new("bye")).await.unwrap();
+        backend
+            .write(k.clone(), MemoryEntry::new("bye"))
+            .await
+            .unwrap();
         backend.delete(&k).await.unwrap();
         assert!(backend.read(&k).await.unwrap().is_none());
     }

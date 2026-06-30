@@ -18,7 +18,8 @@ type TransitionFn<S, O> = Box<
     dyn for<'a> Fn(
             S,
             &'a AgentContext,
-        ) -> futures::future::BoxFuture<'a, Result<Transition<S, O>, StateMachineError>>
+        )
+            -> futures::future::BoxFuture<'a, Result<Transition<S, O>, StateMachineError>>
         + Send
         + Sync,
 >;
@@ -276,15 +277,27 @@ mod tests {
     struct Stub;
     #[async_trait]
     impl ModelProvider for Stub {
-        async fn complete(&self, _: CompletionRequest) -> Result<CompletionResponse, ProviderError> {
+        async fn complete(
+            &self,
+            _: CompletionRequest,
+        ) -> Result<CompletionResponse, ProviderError> {
             Err(ProviderError::AuthFailed)
         }
-        async fn stream(&self, _: CompletionRequest) -> Result<BoxStream<Result<CompletionChunk, ProviderError>>, ProviderError> {
+        async fn stream(
+            &self,
+            _: CompletionRequest,
+        ) -> Result<BoxStream<Result<CompletionChunk, ProviderError>>, ProviderError> {
             Err(ProviderError::AuthFailed)
         }
-        fn cost_usd(&self, _: &TokenUsage, _: &str) -> f64 { 0.0 }
-        fn name(&self) -> &'static str { "stub" }
-        fn default_model(&self) -> &'static str { "stub" }
+        fn cost_usd(&self, _: &TokenUsage, _: &str) -> f64 {
+            0.0
+        }
+        fn name(&self) -> &'static str {
+            "stub"
+        }
+        fn default_model(&self) -> &'static str {
+            "stub"
+        }
     }
 
     fn test_ctx() -> AgentContext {
@@ -332,6 +345,9 @@ mod tests {
         // The checkpoint key should be cleared after completion.
         let key = kainetic_memory::MemoryKey::new("sm", "test-run");
         let entry = mem.read(&key).await.unwrap();
-        assert!(entry.is_none(), "checkpoint should be cleared on completion");
+        assert!(
+            entry.is_none(),
+            "checkpoint should be cleared on completion"
+        );
     }
 }

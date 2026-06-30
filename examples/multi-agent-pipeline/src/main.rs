@@ -188,11 +188,7 @@ impl Agent for ReviewerAgent {
         &self.config
     }
 
-    fn run(
-        &self,
-        draft: Draft,
-        _ctx: AgentContext,
-    ) -> AgentFuture<'_, ReviewedDraft, AgentError> {
+    fn run(&self, draft: Draft, _ctx: AgentContext) -> AgentFuture<'_, ReviewedDraft, AgentError> {
         Box::pin(async move {
             tracing::info!(title = draft.title, "reviewer: reviewing draft");
             Ok(ReviewedDraft {
@@ -245,10 +241,7 @@ async fn main() {
     println!();
 
     let ctx = standalone_ctx();
-    let output = pipeline
-        .run(topic, ctx)
-        .await
-        .expect("pipeline run failed");
+    let output = pipeline.run(topic, ctx).await.expect("pipeline run failed");
 
     let reviewed: ReviewedDraft =
         serde_json::from_value(output).expect("output is a ReviewedDraft");

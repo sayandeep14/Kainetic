@@ -237,10 +237,7 @@ mod tests {
 
         let tool = WebSearchTool::with_base_url("test-key", server.uri());
         let result = tool
-            .call(
-                serde_json::json!({"query": "rust programming"}),
-                ctx(),
-            )
+            .call(serde_json::json!({"query": "rust programming"}), ctx())
             .await
             .unwrap();
 
@@ -255,7 +252,9 @@ mod tests {
         let server = MockServer::start().await;
         Mock::given(method("GET"))
             .and(path("/res/v1/web/search"))
-            .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({"web": null})))
+            .respond_with(
+                ResponseTemplate::new(200).set_body_json(serde_json::json!({"web": null})),
+            )
             .mount(&server)
             .await;
 

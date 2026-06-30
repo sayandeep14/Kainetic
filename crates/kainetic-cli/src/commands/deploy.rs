@@ -77,12 +77,8 @@ struct AgentResponse {
 /// - [`CliError::Internal`] — network or cloud API error
 pub async fn run(args: DeployArgs) -> Result<(), CliError> {
     // ── 1. Read manifest ───────────────────────────────────────────────────
-    let manifest_src = std::fs::read_to_string(&args.manifest).map_err(|e| {
-        CliError::InvalidConfig(format!(
-            "could not read '{}': {e}",
-            args.manifest
-        ))
-    })?;
+    let manifest_src = std::fs::read_to_string(&args.manifest)
+        .map_err(|e| CliError::InvalidConfig(format!("could not read '{}': {e}", args.manifest)))?;
 
     let manifest: KaineticManifest = toml::from_str(&manifest_src)
         .map_err(|e| CliError::InvalidConfig(format!("invalid kainetic.toml: {e}")))?;
@@ -93,8 +89,9 @@ pub async fn run(args: DeployArgs) -> Result<(), CliError> {
         .or_else(|| std::env::var("KAINETIC_CLOUD_URL").ok())
         .unwrap_or_else(|| "https://cloud.kainetic.dev".into());
 
-    let api_key = std::env::var("KAINETIC_API_KEY")
-        .map_err(|_| CliError::InvalidConfig("KAINETIC_API_KEY environment variable not set".into()))?;
+    let api_key = std::env::var("KAINETIC_API_KEY").map_err(|_| {
+        CliError::InvalidConfig("KAINETIC_API_KEY environment variable not set".into())
+    })?;
 
     println!(
         "Deploying agent '{}' v{} to {}",
@@ -105,8 +102,7 @@ pub async fn run(args: DeployArgs) -> Result<(), CliError> {
 
     if !args.yes {
         print!("Continue? [y/N] ");
-        IoWrite::flush(&mut std::io::stdout())
-            .map_err(|e| CliError::Internal(e.to_string()))?;
+        IoWrite::flush(&mut std::io::stdout()).map_err(|e| CliError::Internal(e.to_string()))?;
 
         let mut input = String::new();
         std::io::stdin()

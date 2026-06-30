@@ -77,11 +77,17 @@ impl ProviderRouter {
     }
 
     /// Adds the cost of a completed response to the running total.
-    #[allow(clippy::cast_precision_loss, clippy::cast_possible_truncation, clippy::cast_sign_loss)]
+    #[allow(
+        clippy::cast_precision_loss,
+        clippy::cast_possible_truncation,
+        clippy::cast_sign_loss
+    )]
     fn record_cost(&self, usage: &TokenUsage, model: &str, provider: &dyn ModelProvider) {
         let cost_usd = provider.cost_usd(usage, model);
         let cost_micro = (cost_usd * 1_000_000.0).max(0.0) as u64;
-        let prev = self.spent_micro_usd.fetch_add(cost_micro, Ordering::Relaxed);
+        let prev = self
+            .spent_micro_usd
+            .fetch_add(cost_micro, Ordering::Relaxed);
         if let Some(cap) = self.cost_cap_micro_usd {
             if prev < cap && prev + cost_micro >= cap {
                 warn!(
@@ -124,8 +130,7 @@ impl ModelProvider for ProviderRouter {
                     if i > 0 {
                         info!(
                             provider = provider.name(),
-                            "provider_router: fallback provider {} succeeded",
-                            i
+                            "provider_router: fallback provider {} succeeded", i
                         );
                     }
                     return Ok(resp);
@@ -170,8 +175,7 @@ impl ModelProvider for ProviderRouter {
                     if i > 0 {
                         info!(
                             provider = provider.name(),
-                            "provider_router: fallback provider {} used for streaming",
-                            i
+                            "provider_router: fallback provider {} used for streaming", i
                         );
                     }
                     return Ok(stream);
@@ -205,9 +209,7 @@ impl ModelProvider for ProviderRouter {
     }
 
     fn default_model(&self) -> &'static str {
-        self.providers
-            .first()
-            .map_or("", |p| p.default_model())
+        self.providers.first().map_or("", |p| p.default_model())
     }
 }
 
@@ -318,7 +320,10 @@ mod tests {
 
         let router = ProviderRouter::builder()
             .provider(Arc::new(OpenAiProvider::with_base_url("k1", primary.uri())))
-            .provider(Arc::new(OpenAiProvider::with_base_url("k2", fallback.uri())))
+            .provider(Arc::new(OpenAiProvider::with_base_url(
+                "k2",
+                fallback.uri(),
+            )))
             .fallback(true)
             .build();
 
@@ -344,8 +349,14 @@ mod tests {
             .await;
 
         let router = ProviderRouter::builder()
-            .provider(Arc::new(OpenAiProvider::with_base_url("bad", primary.uri())))
-            .provider(Arc::new(OpenAiProvider::with_base_url("k2", fallback.uri())))
+            .provider(Arc::new(OpenAiProvider::with_base_url(
+                "bad",
+                primary.uri(),
+            )))
+            .provider(Arc::new(OpenAiProvider::with_base_url(
+                "k2",
+                fallback.uri(),
+            )))
             .fallback(true)
             .build();
 

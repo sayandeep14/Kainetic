@@ -36,10 +36,8 @@ impl Agent for PyAgentImpl {
     fn run(&self, input: String, _ctx: AgentContext) -> AgentFuture<'_, String, AgentError> {
         let callable = Python::with_gil(|py| self.callable.clone_ref(py));
         Box::pin(async move {
-            Python::with_gil(|py| -> PyResult<String> {
-                callable.call1(py, (input,))?.extract(py)
-            })
-            .map_err(|e| AgentError::User(e.to_string()))
+            Python::with_gil(|py| -> PyResult<String> { callable.call1(py, (input,))?.extract(py) })
+                .map_err(|e| AgentError::User(e.to_string()))
         })
     }
 }

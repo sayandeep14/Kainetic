@@ -34,13 +34,27 @@ pub struct CreateAgentRequest {
 
 fn row_to_agent(row: &sqlx::postgres::PgRow) -> Result<AgentResponse, CloudError> {
     Ok(AgentResponse {
-        id: row.try_get("id").map_err(|e| CloudError::Database(e.to_string()))?,
-        team_id: row.try_get("team_id").map_err(|e| CloudError::Database(e.to_string()))?,
-        name: row.try_get("name").map_err(|e| CloudError::Database(e.to_string()))?,
-        version: row.try_get("version").map_err(|e| CloudError::Database(e.to_string()))?,
-        description: row.try_get("description").map_err(|e| CloudError::Database(e.to_string()))?,
-        config: row.try_get("config").map_err(|e| CloudError::Database(e.to_string()))?,
-        created_at: row.try_get("created_at").map_err(|e| CloudError::Database(e.to_string()))?,
+        id: row
+            .try_get("id")
+            .map_err(|e| CloudError::Database(e.to_string()))?,
+        team_id: row
+            .try_get("team_id")
+            .map_err(|e| CloudError::Database(e.to_string()))?,
+        name: row
+            .try_get("name")
+            .map_err(|e| CloudError::Database(e.to_string()))?,
+        version: row
+            .try_get("version")
+            .map_err(|e| CloudError::Database(e.to_string()))?,
+        description: row
+            .try_get("description")
+            .map_err(|e| CloudError::Database(e.to_string()))?,
+        config: row
+            .try_get("config")
+            .map_err(|e| CloudError::Database(e.to_string()))?,
+        created_at: row
+            .try_get("created_at")
+            .map_err(|e| CloudError::Database(e.to_string()))?,
     })
 }
 
@@ -63,7 +77,10 @@ pub async fn list_agents(
     .await
     .map_err(|e| CloudError::Database(e.to_string()))?;
 
-    rows.iter().map(row_to_agent).collect::<Result<Vec<_>, _>>().map(Json)
+    rows.iter()
+        .map(row_to_agent)
+        .collect::<Result<Vec<_>, _>>()
+        .map(Json)
 }
 
 /// `POST /v1/agents` — register a new agent version.
@@ -75,7 +92,9 @@ pub async fn create_agent(
     user.require_write()?;
 
     if body.name.trim().is_empty() {
-        return Err(CloudError::BadRequest("agent name must not be empty".into()));
+        return Err(CloudError::BadRequest(
+            "agent name must not be empty".into(),
+        ));
     }
 
     let team_id: Uuid = user

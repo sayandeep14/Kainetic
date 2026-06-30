@@ -60,6 +60,8 @@ pub async fn get_metrics(
         avg_cost_usd: row.try_get::<f64, _>("avg_cost_usd").map_err(de)?,
         avg_duration_ms: row.try_get::<f64, _>("avg_duration_ms").map_err(de)?,
         total_prompt_tokens: row.try_get::<i64, _>("total_prompt_tokens").map_err(de)?,
-        total_completion_tokens: row.try_get::<i64, _>("total_completion_tokens").map_err(de)?,
+        total_completion_tokens: row
+            .try_get::<i64, _>("total_completion_tokens")
+            .map_err(de)?,
     }))
 }

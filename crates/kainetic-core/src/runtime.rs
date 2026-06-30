@@ -103,8 +103,7 @@ impl KaineticRuntime {
                     run_id,
                     total_tokens: 0,
                     cost_usd: 0.0,
-                    latency_ms: u64::try_from(run_start.elapsed().as_millis())
-                        .unwrap_or(u64::MAX),
+                    latency_ms: u64::try_from(run_start.elapsed().as_millis()).unwrap_or(u64::MAX),
                 });
                 Ok(output)
             }
@@ -277,11 +276,7 @@ mod tests {
             &self.config
         }
 
-        fn run(
-            &self,
-            input: String,
-            _ctx: AgentContext,
-        ) -> AgentFuture<'_, String, AgentError> {
+        fn run(&self, input: String, _ctx: AgentContext) -> AgentFuture<'_, String, AgentError> {
             Box::pin(async move { Ok(format!("echo: {input}")) })
         }
     }
@@ -314,7 +309,10 @@ mod tests {
             .build();
 
         let mut rx = runtime.subscribe_events();
-        runtime.run(&EchoAgent::new(), "x".to_owned()).await.unwrap();
+        runtime
+            .run(&EchoAgent::new(), "x".to_owned())
+            .await
+            .unwrap();
 
         let first = rx.try_recv().unwrap();
         assert!(matches!(first, AgentEvent::RunStarted { .. }));
@@ -343,11 +341,7 @@ mod tests {
                 &self.config
             }
 
-            fn run(
-                &self,
-                _input: (),
-                _ctx: AgentContext,
-            ) -> AgentFuture<'_, (), AgentError> {
+            fn run(&self, _input: (), _ctx: AgentContext) -> AgentFuture<'_, (), AgentError> {
                 Box::pin(async { Err(AgentError::User("intentional".to_owned())) })
             }
         }
@@ -371,7 +365,9 @@ mod tests {
             events.push(ev);
         }
 
-        let has_failed = events.iter().any(|e| matches!(e, AgentEvent::RunFailed { .. }));
+        let has_failed = events
+            .iter()
+            .any(|e| matches!(e, AgentEvent::RunFailed { .. }));
         assert!(has_failed);
     }
 
