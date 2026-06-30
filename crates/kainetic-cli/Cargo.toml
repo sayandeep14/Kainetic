@@ -9,6 +9,7 @@ repository.workspace = true
 [[bin]]
 name = "kainetic"
 path = "src/main.rs"
+doc = false   # avoids filename collision warning with the kainetic lib crate
 
 [dependencies]
 kainetic-schema = { workspace = true }

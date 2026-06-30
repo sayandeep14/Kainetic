@@ -12,6 +12,24 @@ ignore = [
     # rsa 0.9.10 Marvin Attack — stale lockfile entry; `cargo tree -i rsa`
     # shows no active reverse dependency in this workspace.
     { id = "RUSTSEC-2023-0071", reason = "stale lockfile entry; rsa is not used by any workspace member at runtime" },
+
+    # PyO3 0.24.x out-of-bounds read in BoundListIterator/BoundTupleIterator nth().
+    # Fix requires pyo3 >= 0.29 which has breaking API changes.
+    # Tracked for Part 14: upgrade kainetic-python to pyo3 0.29.
+    { id = "RUSTSEC-2026-0176", reason = "pyo3 >= 0.29 required; bindings upgrade tracked for Part 14" },
+
+    # PyO3 0.21–0.28 missing Sync on PyCFunction::new_closure.
+    # Fix requires pyo3 >= 0.29 (same as above).
+    { id = "RUSTSEC-2026-0177", reason = "pyo3 >= 0.29 required; bindings upgrade tracked for Part 14" },
+
+    # fxhash is unmaintained; no upgrade available.
+    # Pulled in transitively by scraper -> selectors -> fxhash.
+    # Not a security vulnerability — only a maintenance concern.
+    { id = "RUSTSEC-2025-0057", reason = "transitive dep via scraper/selectors; no upgrade available upstream" },
+
+    # number_prefix is unmaintained; no upgrade available.
+    # Pulled in transitively by indicatif.
+    { id = "RUSTSEC-2025-0119", reason = "transitive dep via indicatif; no upgrade available upstream" },
 ]
 
 # ── Licenses ───────────────────────────────────────────────────────────────────
@@ -32,9 +50,15 @@ allow = [
     "CC0-1.0",
     "OpenSSL",
     "Zlib",
+    # MPL-2.0: file-level weak copyleft (cssparser, selectors, scraper).
+    # Compatible with Apache-2.0 projects per Mozilla's FAQ.
+    "MPL-2.0",
+    # CDLA-Permissive-2.0: permissive data license (webpki-roots).
+    # No copyleft, no advertising clauses; safe for Apache-2.0 projects.
+    "CDLA-Permissive-2.0",
 ]
-deny = ["GPL-2.0", "GPL-3.0", "LGPL-2.0", "LGPL-2.1", "LGPL-3.0", "AGPL-3.0"]
-copyleft = "deny"
+# Licenses not in the `allow` list above are denied implicitly in cargo-deny v2.
+# GPL, LGPL, and AGPL variants are not in the allow list and will be rejected.
 
 [[licenses.clarify]]
 name = "ring"
@@ -52,6 +76,8 @@ deny = []
 skip = [
     # syn 1.x / 2.x dual-presence is common while the ecosystem migrates.
     { name = "syn", reason = "syn 1.x/2.x dual-presence during ecosystem migration" },
+    # thiserror 1.x / 2.x dual-presence: sqlx still pins 1.x, workspace uses 2.x.
+    { name = "thiserror", reason = "thiserror 1.x/2.x dual-presence; sqlx has not yet upgraded" },
 ]
 
 # ── Sources ───────────────────────────────────────────────────────────────────
